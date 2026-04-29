@@ -5,7 +5,7 @@
 ---
 
 ## Tabla de contenidos
-
+- [Justin Ivan]
 - [Descripción del proyecto](#descripción-del-proyecto)
 - [Características principales](#características-principales)
 - [Tecnologías utilizadas](#tecnologías-utilizadas)

@@ -5,31 +5,24 @@ import lombok.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "DETALLE_PEDIDO")
+@Table(name = "DETALLE_VENTA")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class DetallePedido {
+public class DetalleVenta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID_DETALLE_PEDIDO")
-    private Integer idDetallePedido;
+    @Column(name = "ID_DETALLE_VENTA")
+    private Integer idDetalleVenta;
 
-    // Relación con Pedido
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "ID_PEDIDO", nullable = false)
-    private Pedido pedido;
+    @JoinColumn(name = "ID_VENTA", nullable = false)
+    private Venta venta;
 
-    // Relación con Producto
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ID_PRODUCTO", nullable = false)
     private Producto producto;
-
-    // 5FN: ID_PROVEEDOR desnormalizado para FK compuesta hacia PRODUCTO_PROVEEDOR
-    // Debe coincidir con el proveedor del encabezado (validado por trigger en BD)
-    @Column(name = "ID_PROVEEDOR", nullable = false)
-    private Integer idProveedor;
 
     @Column(name = "cantidad", nullable = false)
     private Integer cantidad;
@@ -37,7 +30,6 @@ public class DetallePedido {
     @Column(name = "precio_unitario", nullable = false, precision = 10, scale = 2)
     private BigDecimal precioUnitario;
 
-    // subtotal es columna GENERATED en la BD → insertable=false, updatable=false
     @Column(name = "subtotal", precision = 10, scale = 2)
     private BigDecimal subtotal;
 }

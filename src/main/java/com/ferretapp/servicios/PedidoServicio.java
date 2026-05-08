@@ -64,7 +64,6 @@ public class PedidoServicio {
                 .estado(dto.getEstado() != null ? dto.getEstado() : "Pendiente")
                 .build();
 
-        // Construir detalles inline
         if (dto.getDetalles() != null && !dto.getDetalles().isEmpty()) {
             List<DetallePedido> detalles = new ArrayList<>();
             for (DetallePedidoDTO d : dto.getDetalles()) {
@@ -75,12 +74,18 @@ public class PedidoServicio {
                                     ") no coincide con el del pedido (" + proveedor.getIdProveedor() + ").");
                 }
                 Producto producto = productoServicio.buscarOFallar(d.getIdProducto());
+
+                // ← CAMBIO: calcular subtotal en Java
+                BigDecimal subtotal = d.getPrecioUnitario()
+                        .multiply(BigDecimal.valueOf(d.getCantidad()));
+
                 detalles.add(DetallePedido.builder()
                         .pedido(pedido)
                         .producto(producto)
                         .idProveedor(d.getIdProveedor())
                         .cantidad(d.getCantidad())
                         .precioUnitario(d.getPrecioUnitario())
+                        .subtotal(subtotal) // ← CAMBIO
                         .build());
             }
             pedido.setDetalles(detalles);
@@ -98,7 +103,6 @@ public class PedidoServicio {
         }
         Pedido pedido = buscarOFallar(id);
 
-        // Al recibir el pedido, actualizar el stock de cada producto
         if ("Recibido".equals(nuevoEstado) && !"Recibido".equals(pedido.getEstado())) {
             for (DetallePedido d : pedido.getDetalles()) {
                 productoServicio.actualizarStock(d.getProducto().getIdProducto(), d.getCantidad());

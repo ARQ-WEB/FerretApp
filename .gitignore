@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
@@ -40,3 +41,6 @@ target/
 
 # Crash logs
 hs_err_pid*
+=======
+
+>>>>>>> 2ec002a82eda71ad3f78ebd444da7a61c225031f

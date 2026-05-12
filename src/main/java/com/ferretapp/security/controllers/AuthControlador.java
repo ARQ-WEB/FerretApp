@@ -4,10 +4,13 @@ import com.ferretapp.security.dtos.AuthRequestDTO;
 import com.ferretapp.security.dtos.AuthResponseDTO;
 import com.ferretapp.security.services.CustomUserDetailsService;
 import com.ferretapp.security.util.JwtUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @CrossOrigin(origins = "${ip.frontend}",
         allowCredentials = "true",
         exposedHeaders = "Authorization")
@@ -36,14 +40,18 @@ public class AuthControlador {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthResponseDTO> login(
-            @RequestBody AuthRequestDTO authRequest) throws Exception {
-
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        authRequest.getUsername(),
-                        authRequest.getPassword())
-        );
+    public ResponseEntity<?> login(@RequestBody AuthRequestDTO authRequest) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            authRequest.getUsername(),
+                            authRequest.getPassword())
+            );
+        } catch (BadCredentialsException e) {
+            log.warn("Intento de login fallido para: {}", authRequest.getUsername());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Credenciales inválidas");
+        }
 
         final UserDetails userDetails =
                 userDetailsService.loadUserByUsername(authRequest.getUsername());
@@ -60,6 +68,8 @@ public class AuthControlador {
         AuthResponseDTO response = new AuthResponseDTO();
         response.setJwt(token);
         response.setRoles(roles);
+
+        log.info("Login exitoso para usuario: {} con roles: {}", authRequest.getUsername(), roles);
 
         return ResponseEntity.ok()
                 .headers(responseHeaders)

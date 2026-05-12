@@ -3,12 +3,14 @@ package com.ferretapp.controladores;
 import com.ferretapp.dtos.PedidoDTO;
 import com.ferretapp.servicios.PedidoServicio;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/pedidos")
 @RequiredArgsConstructor
@@ -38,19 +40,23 @@ public class PedidoControlador {
 
     @PostMapping
     public ResponseEntity<PedidoDTO> crear(@RequestBody PedidoDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(pedidoServicio.crear(dto));
+        PedidoDTO creado = pedidoServicio.crear(dto);
+        log.info("Pedido registrado exitosamente: id={}", creado.getIdPedido());
+        return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 
-    // Cambiar estado: Pendiente → Recibido | Cancelado
     @PatchMapping("/{id}/estado")
     public ResponseEntity<PedidoDTO> cambiarEstado(@PathVariable Integer id,
                                                    @RequestParam String estado) {
-        return ResponseEntity.ok(pedidoServicio.cambiarEstado(id, estado));
+        PedidoDTO actualizado = pedidoServicio.cambiarEstado(id, estado);
+        log.info("Estado de pedido actualizado: id={}, nuevoEstado={}", id, estado);
+        return ResponseEntity.ok(actualizado);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         pedidoServicio.eliminar(id);
+        log.info("Pedido eliminado: id={}", id);
         return ResponseEntity.noContent().build();
     }
 }

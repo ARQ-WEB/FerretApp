@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -52,15 +53,20 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        // Login
+                        .requestMatchers(HttpMethod.POST, "/api/authenticate").permitAll()
+                        // Registro de usuario (sin token)
+                        .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
+                        // Consulta de roles para formulario de registro
+                        .requestMatchers(HttpMethod.GET, "/api/roles", "/api/roles/**").permitAll()
+                        // Swagger / OpenAPI
                         .requestMatchers(
-                                "/api/authenticate",
-                                "/api/roles/**",
-                                "/api/usuarios/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/api-docs/**"
                         ).permitAll()
+                        // Todo lo demás requiere autenticación
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

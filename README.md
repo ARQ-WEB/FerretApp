@@ -1,11 +1,14 @@
 # FerretApp — Sistema de Gestión para Ferretería
-# Grupo 3 Arqui Web
 
 > Backend REST API desarrollado con **Spring Boot 3** y **PostgreSQL**, diseñado para gestionar inventario, ventas, pedidos a proveedores, usuarios y auditoría de una ferretería. Base de datos normalizada hasta **5FN**.
 
 ---
 
 ## Tabla de contenidos
+- Justin Ivan
+- prueba kiara
+- prueba frank
+- prueba frank 2
 - [Descripción del proyecto](#descripción-del-proyecto)
 - [Características principales](#características-principales)
 - [Tecnologías utilizadas](#tecnologías-utilizadas)
@@ -102,8 +105,6 @@ El esquema contiene las siguientes entidades principales:
 | `PEDIDO` | Cabecera de pedido a proveedor |
 | `DETALLE_PEDIDO` | Líneas de cada pedido con FK compuesta (5FN) |
 | `AUDITORIA` | Registro de todas las acciones del sistema |
-
-Todos están implementados correctamente 
 
 ---
 
@@ -267,7 +268,6 @@ src/
 | GET | `/api/auditoria` | ADMIN |
 | GET | `/api/auditoria/resumen` | ADMIN |
 
-Se visualizan en el documento con sus HUS y capturas 
 ---
 
 ## Requisitos previos

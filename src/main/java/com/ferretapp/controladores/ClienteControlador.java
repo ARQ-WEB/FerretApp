@@ -4,12 +4,14 @@ import com.ferretapp.dtos.ClienteDTO;
 import com.ferretapp.servicios.ClienteServicio;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/clientes")
 @RequiredArgsConstructor
@@ -39,19 +41,23 @@ public class ClienteControlador {
 
     @PostMapping
     public ResponseEntity<ClienteDTO> crear(@Valid @RequestBody ClienteDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(clienteServicio.crear(dto));
+        ClienteDTO creado = clienteServicio.crear(dto);
+        log.info("Cliente registrado exitosamente: id={}, nombre={}", creado.getIdCliente(), creado.getNombreCompleto());
+        return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ClienteDTO> actualizar(@PathVariable Integer id,
                                                  @Valid @RequestBody ClienteDTO dto) {
-        return ResponseEntity.ok(clienteServicio.actualizar(id, dto));
+        ClienteDTO actualizado = clienteServicio.actualizar(id, dto);
+        log.info("Cliente actualizado: id={}", id);
+        return ResponseEntity.ok(actualizado);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         clienteServicio.eliminar(id);
+        log.info("Cliente eliminado: id={}", id);
         return ResponseEntity.noContent().build();
     }
 }

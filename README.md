@@ -1,15 +1,19 @@
 # FerretApp — Sistema de Gestión para Ferretería
+# Grupo 3 Arqui web 
 
 > Backend REST API desarrollado con **Spring Boot 3** y **PostgreSQL**, diseñado para gestionar inventario, ventas, pedidos a proveedores, usuarios y auditoría de una ferretería. Base de datos normalizada hasta **5FN**.
 
 ---
+## Integrantes
+u20211d808 - Ruiz Jara, Jhordan Smith
+u202212471 - Mauricio Cornejo, Eder Jair
+u20231c492 - Delgado Banda, Justin Ivan
+u20231e961 - Torrejón Gonzales, Nicolás Fredy
+u202118069 - Vegas Garcia, Frank
+u202113150 - Guerrero Rodrigo, Kiara Maryfe
 
 ## Tabla de contenidos
-- prueba Eder
-- Justin Ivan
-- prueba kiara
-- prueba frank
-- prueba frank 2
+
 - [Descripción del proyecto](#descripción-del-proyecto)
 - [Características principales](#características-principales)
 - [Tecnologías utilizadas](#tecnologías-utilizadas)

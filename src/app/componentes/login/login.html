@@ -1,0 +1,94 @@
+<!-- Fondo con gradiente igual al mockup -->
+<div class="login-page">
+  <div class="login-bg-pattern"></div>
+
+  <div class="login-card">
+
+    <!-- Header azul con logo -->
+    <div class="card-header">
+      <div class="logo-container">
+        <svg viewBox="0 0 100 100" class="logo-icon" fill="none" stroke="currentColor">
+          <circle cx="65" cy="50" r="30" stroke-width="3"/>
+          <circle cx="35" cy="50" r="5" stroke-width="2" fill="currentColor"/>
+          <line x1="50" y1="20" x2="50" y2="80" stroke-width="3"/>
+          <line x1="45" y1="30" x2="55" y2="30" stroke-width="3"/>
+          <line x1="45" y1="70" x2="55" y2="70" stroke-width="3"/>
+          <path d="M 20 50 L 25 45 L 30 50 L 35 45 L 40 50 L 45 45 L 50 50" stroke-width="3" fill="none"/>
+          <path d="M 55 60 Q 60 55, 65 60 Q 70 65, 65 70 Q 60 65, 55 60 Z" fill="currentColor" stroke="none"/>
+        </svg>
+        <div class="logo-text">
+          <h1 class="logo-title">FERRETAPP</h1>
+          <p class="logo-tagline">Construyendo juntos un mejor futuro</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subtítulo -->
+    <div class="card-subtitle">
+      <h2>Sistema de Gestión</h2>
+      <p>Ingrese sus credenciales para continuar</p>
+    </div>
+
+    <!-- Formulario -->
+    <div class="card-body">
+      <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+
+        <!-- Campo Email -->
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            placeholder="usuario@ferreteria.com"
+            [(ngModel)]="email"
+            required
+            class="form-input"
+          />
+        </div>
+
+        <!-- Campo Contraseña -->
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input
+            id="password"
+            type="password"
+            name="password"
+            placeholder="••••••••"
+            [(ngModel)]="password"
+            required
+            class="form-input"
+          />
+        </div>
+
+        <!-- Alerta de error -->
+        @if (error) {
+          <div class="alert-error">
+            <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" stroke-width="2"/>
+              <line x1="12" y1="8" x2="12" y2="12" stroke-width="2"/>
+              <line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2"/>
+            </svg>
+            <span>{{ error }}</span>
+          </div>
+        }
+
+        <!-- Botón Submit -->
+        <button
+          type="submit"
+          class="btn-submit"
+          
+        >
+          @if (cargando) {
+            <span class="spinner"></span>
+            Iniciando sesión...
+          } @else {
+            Iniciar sesión
+          }
+        </button>
+
+      </form>
+    </div>
+
+  </div>
+</div>

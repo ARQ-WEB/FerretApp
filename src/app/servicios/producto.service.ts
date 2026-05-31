@@ -19,4 +19,16 @@ export class ProductoService {
   getStockBajo(): Observable<ProductoDTO[]> {
     return this.http.get<ProductoDTO[]>(`${this.API_URL}/productos/stock-bajo`);
   }
+
+  crear(producto: ProductoDTO): Observable<ProductoDTO> {
+    return this.http.post<ProductoDTO>(`${this.API_URL}/productos`, producto);
+  }
+
+  actualizar(id: number, producto: ProductoDTO): Observable<ProductoDTO> {
+    return this.http.put<ProductoDTO>(`${this.API_URL}/productos/${id}`, producto);
+  }
+
+  eliminar(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/productos/${id}`);
+  }
 }

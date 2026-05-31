@@ -76,7 +76,7 @@ export interface VentaDTO {
   nombreCliente?: string;
   fechaVenta?: string;
   total?: number;
-  detalles: DetalleVentaDTO[];
+  detalles?: DetalleVentaDTO[];
 }
 
 // --- PEDIDO ---

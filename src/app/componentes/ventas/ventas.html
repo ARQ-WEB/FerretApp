@@ -1,1 +1,241 @@
-<p>ventas works!</p>
+<div class="ventas">
+
+  <!-- Header -->
+  <div class="page-header">
+    <h1>Punto de Venta</h1>
+    <p>Registro rápido de ventas</p>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="ventas-layout">
+
+    <!-- Panel izquierdo -->
+    <div class="panel-izquierdo">
+      <div class="card">
+        <div class="card-header">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.4 5h12.8"/>
+            <circle cx="9" cy="21" r="1" stroke-width="2"/>
+            <circle cx="20" cy="21" r="1" stroke-width="2"/>
+          </svg>
+          <div>
+            <h2>Nueva Venta</h2>
+            <p>Agregue productos al carrito</p>
+          </div>
+        </div>
+
+        <!-- Selector de producto -->
+        <div class="selector-row">
+          <div class="form-group">
+            <label>Producto</label>
+            <select [(ngModel)]="productoSeleccionado" class="form-input">
+              <option [ngValue]="null">Seleccionar producto</option>
+              @for (producto of productos; track producto.idProducto) {
+                <option [ngValue]="producto.idProducto">
+                  {{ producto.nombre }} - {{ formatearMoneda(producto.precioVenta) }} ({{ producto.stockActual }} en stock)
+                </option>
+              }
+            </select>
+          </div>
+          <div class="form-group cantidad-group">
+            <label>Cantidad</label>
+            <input type="number" [(ngModel)]="cantidad" min="1" class="form-input"/>
+          </div>
+          <button class="btn-agregar" (click)="agregarAlCarrito()">
+            <span>+</span> Agregar
+          </button>
+        </div>
+
+        <!-- Carrito -->
+        @if (carrito.length > 0) {
+          <table class="tabla-carrito">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of carrito; track item.idProducto; let i = $index) {
+                <tr>
+                  <td>{{ item.nombreProducto }}</td>
+                  <td>{{ formatearMoneda(item.precioUnitario) }}</td>
+                  <td>{{ item.cantidad }}</td>
+                  <td>{{ formatearMoneda(item.subtotal) }}</td>
+                  <td>
+                    <button class="btn-eliminar-item" (click)="eliminarDelCarrito(i)">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    </div>
+
+    <!-- Panel derecho — Resumen -->
+    <div class="panel-derecho">
+      <div class="card resumen">
+        <div class="resumen-header">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+          <h2>Resumen</h2>
+        </div>
+
+        <div class="resumen-items">
+          <div class="resumen-fila">
+            <span>Items en carrito:</span>
+            <span>{{ carrito.length }}</span>
+          </div>
+          <div class="resumen-fila">
+            <span>Unidades totales:</span>
+            <span>{{ unidadesTotales }}</span>
+          </div>
+        </div>
+
+        <div class="resumen-total">
+          <span>Total:</span>
+          <span class="total-valor">{{ formatearMoneda(totalCarrito) }}</span>
+        </div>
+
+        <button
+          class="btn-completar"
+          (click)="completarVenta()"
+          [disabled]="carrito.length === 0 || procesando"
+          [class.activo]="carrito.length > 0"
+        >
+          {{ procesando ? 'Procesando...' : 'Completar Venta' }}
+        </button>
+
+        @if (carrito.length === 0) {
+          <p class="resumen-hint">Agregue productos para realizar una venta</p>
+        }
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Ventas Recientes — ancho completo -->
+  <div class="card">
+    <div class="ventas-recientes-header">
+      <h2>Ventas Recientes</h2>
+      <p>Últimas {{ ventasRecientes.length }} ventas registradas</p>
+    </div>
+
+    @if (cargando) {
+      <div class="cargando">
+        <div class="spinner"></div>
+        <p>Cargando...</p>
+      </div>
+    } @else {
+      <table class="tabla-ventas">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Vendedor</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (venta of ventasRecientes; track venta.idVenta) {
+            <tr>
+              <td class="venta-id">{{ venta.idVenta }}</td>
+              <td>{{ formatearFecha(venta.fechaVenta ?? '') }}</td>
+              <td>{{ venta.nombreUsuario }}</td>
+              <td>{{ venta.detalles?.length ?? 0 }} productos</td>
+              <td class="venta-total">{{ formatearMoneda(venta.total ?? 0) }}</td>
+              <td>
+                <button class="btn-ver-detalle" (click)="verDetalle(venta)">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                  Ver Detalles
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+
+  <!-- Modal Detalles -->
+  @if (mostrarDetalle && ventaDetalle) {
+    <div class="modal-overlay" (click)="cerrarDetalle()">
+      <div class="modal" (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+          <div>
+            <h2>Detalles de la Venta</h2>
+            <p>Información completa de la venta seleccionada</p>
+          </div>
+          <button class="btn-cerrar-modal" (click)="cerrarDetalle()">✕</button>
+        </div>
+
+        <div class="modal-info">
+          <div class="info-grid">
+            <div>
+              <p class="info-label">ID de Venta</p>
+              <p class="info-valor">sale-{{ ventaDetalle.idVenta }}</p>
+            </div>
+            <div>
+              <p class="info-label">Fecha</p>
+              <p class="info-valor">{{ formatearFecha(ventaDetalle.fechaVenta ?? '') }}</p>
+            </div>
+            <div>
+              <p class="info-label">Vendedor</p>
+              <p class="info-valor">{{ ventaDetalle.nombreUsuario }}</p>
+            </div>
+            <div>
+              <p class="info-label">Total de Items</p>
+              <p class="info-valor">{{ ventaDetalle.detalles?.length ?? 0 }} productos</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-productos">
+          <h3>Productos Vendidos</h3>
+          <table class="tabla-detalle">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Precio Unitario</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (detalle of ventaDetalle.detalles; track detalle.idDetalleVenta) {
+                <tr>
+                  <td>{{ detalle.nombreProducto }}</td>
+                  <td>{{ formatearMoneda(detalle.precioUnitario ?? 0) }}</td>
+                  <td>{{ detalle.cantidad }}</td>
+                  <td>{{ formatearMoneda(detalle.subtotal ?? 0) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="modal-total">
+          <span>Total de la Venta:</span>
+          <span class="total-azul">{{ formatearMoneda(ventaDetalle.total ?? 0) }}</span>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</div>

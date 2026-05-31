@@ -129,10 +129,9 @@ export interface AuditoriaDTO {
 
 // --- REPORTE ---
 export interface ProductoVendidoDTO {
-  idProducto: number;
   nombreProducto: string;
-  cantidadVendida: number;
-  totalVendido: number;
+  unidadesVendidas: number;
+  ingresoGenerado: number;
 }
 
 export interface ReporteDTO {
@@ -141,7 +140,7 @@ export interface ReporteDTO {
   unidadesVendidas: number;
   ventaPromedio: number;
   ventasPorDia: { [fecha: string]: number };
-  ventasPorCategoria: { [categoria: string]: number };
+  ventasPorCategoria: { [fecha: string]: number };
   productosMasVendidos: ProductoVendidoDTO[];
   productosStockBajo: ProductoDTO[];
 }

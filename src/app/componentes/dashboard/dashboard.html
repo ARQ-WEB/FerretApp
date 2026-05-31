@@ -14,7 +14,7 @@
     </div>
   }
 
-  @if (!cargando && reporte) {
+  @if (!cargando) {
 
     <!-- Alerta stock bajo -->
     @if (hayStockBajo) {
@@ -31,6 +31,18 @@
 
     <!-- KPIs -->
     <div class="kpis">
+
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span>Total Productos</span>
+          <svg fill="none" stroke="#6b7280" viewBox="0 0 24 24">
+            <path stroke-width="2" d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
+            <path stroke-width="2" d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+          </svg>
+        </div>
+        <p class="kpi-valor">{{ totalProductos }}</p>
+        <p class="kpi-desc">Stock total: {{ stockTotal }} unidades</p>
+      </div>
 
       <div class="kpi-card">
         <div class="kpi-header">
@@ -52,20 +64,8 @@
             <circle cx="20" cy="21" r="1" stroke-width="2"/>
           </svg>
         </div>
-        <p class="kpi-valor">{{ reporte.ventasTotales }}</p>
+        <p class="kpi-valor">{{ reporte?.ventasTotales ?? 0 }}</p>
         <p class="kpi-desc">Operaciones registradas</p>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span>Unidades Vendidas</span>
-          <svg fill="none" stroke="#6b7280" viewBox="0 0 24 24">
-            <path stroke-width="2" d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
-            <path stroke-width="2" d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
-          </svg>
-        </div>
-        <p class="kpi-valor">{{ reporte.unidadesVendidas }}</p>
-        <p class="kpi-desc">Últimos 7 días</p>
       </div>
 
       <div class="kpi-card">
@@ -75,7 +75,7 @@
             <path stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
         </div>
-        <p class="kpi-valor verde">{{ formatearMoneda(reporte.ingresosTotales) }}</p>
+        <p class="kpi-valor verde">{{ formatearMoneda(reporte?.ingresosTotales ?? 0) }}</p>
         <p class="kpi-desc verde">Ventas del período</p>
       </div>
 
@@ -120,7 +120,7 @@
           <h2>Productos Más Vendidos (7 días)</h2>
         </div>
 
-        @if (reporte.productosMasVendidos.length === 0) {
+        @if (!reporte || reporte.productosMasVendidos.length === 0) {
           <p class="sin-datos">No hay ventas en los últimos 7 días</p>
         } @else {
           @for (producto of reporte.productosMasVendidos; track producto.nombreProducto) {

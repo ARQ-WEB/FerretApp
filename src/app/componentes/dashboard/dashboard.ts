@@ -15,9 +15,9 @@ export class Dashboard implements OnInit {
 
   reporte: ReporteDTO | null = null;
   stockBajo: ProductoDTO[] = [];
+  productos: ProductoDTO[] = [];
   cargando = true;
 
-  // Fechas últimos 7 días
   hasta = new Date().toISOString().split('T')[0];
   desde = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
@@ -37,6 +37,12 @@ export class Dashboard implements OnInit {
       next: (data) => {
         this.reporte = data;
         this.stockBajo = data.productosStockBajo;
+      }
+    });
+
+    this.productoService.getProductos().subscribe({
+      next: (data) => {
+        this.productos = data;
         this.cargando = false;
       },
       error: () => {
@@ -45,15 +51,19 @@ export class Dashboard implements OnInit {
     });
   }
 
-  formatearMoneda(valor: number): string {
-    return `S/${valor.toFixed(2)}`;
+  get totalProductos(): number {
+    return this.productos.length;
   }
 
-  get totalProductos(): number {
-    return this.reporte?.productosMasVendidos?.length ?? 0;
+  get stockTotal(): number {
+    return this.productos.reduce((acc, p) => acc + p.stockActual, 0);
   }
 
   get hayStockBajo(): boolean {
     return this.stockBajo.length > 0;
+  }
+
+  formatearMoneda(valor: number): string {
+    return `S/${valor.toFixed(2)}`;
   }
 }

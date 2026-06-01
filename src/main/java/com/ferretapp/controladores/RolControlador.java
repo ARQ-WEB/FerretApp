@@ -4,12 +4,14 @@ import com.ferretapp.dtos.RolDTO;
 import com.ferretapp.servicios.RolServicio;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/roles")
 @RequiredArgsConstructor
@@ -29,7 +31,8 @@ public class RolControlador {
 
     @PostMapping
     public ResponseEntity<RolDTO> crear(@Valid @RequestBody RolDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(rolServicio.crear(dto));
+        RolDTO creado = rolServicio.crear(dto);
+        log.info("Rol registrado exitosamente: id={}, nombre={}", creado.getIdRol(), creado.getNombre());
+        return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 }

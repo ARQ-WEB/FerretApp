@@ -13,7 +13,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-
+//Esta clase JwtUtil es un componente de servicio que genera, valida y extrae información de tokens JWT (JSON Web Tokens) para la autenticación de usuarios en la aplicación
+//utilizando una clave secreta configurable y un algoritmo HMAC-SHA256 para firmar los tokens con una validez de 8 horas
 @Component
 public class JwtUtil {
 

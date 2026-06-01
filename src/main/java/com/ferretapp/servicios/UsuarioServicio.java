@@ -88,6 +88,45 @@ public class UsuarioServicio {
         usuarioRepositorio.save(usuario);
     }
 
+    // ── Conteo de usuarios por rol ───────────────────────────
+    @Transactional(readOnly = true)
+    public java.util.Map<String, Long> conteoPorRol() {
+        return usuarioRepositorio.findByEliminadoFalse().stream()
+                .collect(java.util.stream.Collectors.groupingBy(
+                        u -> u.getRol().getNombre(),
+                        java.util.stream.Collectors.counting()
+                ));
+    }
+
+    // ── Cambiar contraseña ───────────────────────────────────
+    @Transactional
+    public void cambiarPassword(Integer id, String nuevaPassword) {
+        Usuario usuario = buscarOFallar(id);
+        if (nuevaPassword == null || nuevaPassword.isBlank()) {
+            throw new IllegalArgumentException("La nueva contraseña no puede estar vacía");
+        }
+        usuario.setContrasena(passwordEncoder.encode(nuevaPassword));
+        usuarioRepositorio.save(usuario);
+    }
+
+    // ── Cambiar estado (activar / desactivar) ────────────────
+    @Transactional
+    public UsuarioDTO cambiarEstado(Integer id, Boolean eliminado) {
+        Usuario usuario = buscarOFallar(id);
+        usuario.setEliminado(eliminado);
+        return toDTO(usuarioRepositorio.save(usuario));
+    }
+
+    // ── Obtener por email ────────────────────────────────────
+    @Transactional(readOnly = true)
+    public UsuarioDTO obtenerPorEmail(String email) {
+        Usuario usuario = usuarioRepositorio
+                .findByEmailIgnoreCaseAndEliminadoFalse(email)
+                .orElseThrow(() -> new java.util.NoSuchElementException(
+                        "Usuario no encontrado: " + email));
+        return toDTO(usuario);
+    }
+
     // ── Helpers ──────────────────────────────────────────────
     public Usuario buscarOFallar(Integer id) {
         return usuarioRepositorio.findById(id)

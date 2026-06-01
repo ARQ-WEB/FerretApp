@@ -110,4 +110,23 @@ public class ReporteServicio {
     public List<ProductoDTO> reporteStockBajo() {
         return productoServicio.listarConStockBajo();
     }
+
+    // ── Ventas por día (para gráfico separado) ───────────────
+    @Transactional(readOnly = true)
+    public Map<String, BigDecimal> ventasPorDia(LocalDateTime desde, LocalDateTime hasta) {
+        return reporteVentas(desde, hasta).getVentasPorDia();
+    }
+
+    // ── Ventas por categoría (para gráfico separado) ─────────
+    @Transactional(readOnly = true)
+    public Map<String, BigDecimal> ventasPorCategoria(LocalDateTime desde, LocalDateTime hasta) {
+        return reporteVentas(desde, hasta).getVentasPorCategoria();
+    }
+
+    // ── Productos más vendidos (ranking separado) ────────────
+    @Transactional(readOnly = true)
+    public List<ReporteDTO.ProductoVendidoDTO> productosMasVendidos(LocalDateTime desde,
+                                                                    LocalDateTime hasta) {
+        return reporteVentas(desde, hasta).getProductosMasVendidos();
+    }
 }

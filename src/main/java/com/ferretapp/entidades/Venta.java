@@ -32,6 +32,10 @@ public class Venta {
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion;
 
+    @Column(name = "anulado", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    @Builder.Default
+    private Boolean anulado = false;
+
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL,
             orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default

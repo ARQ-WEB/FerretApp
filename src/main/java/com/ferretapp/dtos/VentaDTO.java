@@ -22,6 +22,7 @@ public class VentaDTO {
     private LocalDateTime fechaVenta;
     private LocalDateTime fechaCreacion;
     private BigDecimal total;
+    private Boolean anulado;
 
     @NotEmpty(message = "La venta debe tener al menos un producto")
     private List<DetalleVentaDTO> detalles;

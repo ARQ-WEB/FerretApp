@@ -3,12 +3,14 @@ package com.ferretapp.controladores;
 import com.ferretapp.dtos.ProductoDTO;
 import com.ferretapp.servicios.ProductoServicio;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/productos")
 @RequiredArgsConstructor
@@ -37,10 +39,31 @@ public class ProductoControlador {
         return ResponseEntity.ok(productoServicio.listarConStockBajo());
     }
 
+    // GET /api/productos/buscar?q=martillo
+    @GetMapping("/buscar")
+    public ResponseEntity<List<ProductoDTO>> buscar(@RequestParam String q) {
+        return ResponseEntity.ok(productoServicio.buscar(q));
+    }
+
+    // GET /api/productos/por-proveedor/{idProveedor}
+    @GetMapping("/por-proveedor/{idProveedor}")
+    public ResponseEntity<List<ProductoDTO>> porProveedor(@PathVariable Integer idProveedor) {
+        return ResponseEntity.ok(productoServicio.listarPorProveedor(idProveedor));
+    }
+
     // Filtrar por categoría (4FN)
     @GetMapping("/por-categoria/{idCategoria}")
     public ResponseEntity<List<ProductoDTO>> porCategoria(@PathVariable Integer idCategoria) {
         return ResponseEntity.ok(productoServicio.listarPorCategoria(idCategoria));
+    }
+
+    // PATCH /api/productos/{id}/stock?cantidad=10
+    @PatchMapping("/{id}/stock")
+    public ResponseEntity<Void> actualizarStock(@PathVariable Integer id,
+                                                @RequestParam int cantidad) {
+        productoServicio.actualizarStock(id, cantidad);
+        log.info("Stock actualizado para producto id={} en cantidad={}", id, cantidad);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping

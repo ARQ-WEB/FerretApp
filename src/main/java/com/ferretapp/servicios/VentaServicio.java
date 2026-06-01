@@ -92,6 +92,36 @@ public class VentaServicio {
         return toDTO(ventaRepositorio.save(venta));
     }
 
+    // ── Ventas por vendedor ──────────────────────────────────
+    @Transactional(readOnly = true)
+    public List<VentaDTO> listarPorVendedor(Integer idUsuario) {
+        return ventaRepositorio.findByUsuario_IdUsuario(idUsuario)
+                .stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    // ── Ventas por rango de fechas ───────────────────────────
+    @Transactional(readOnly = true)
+    public List<VentaDTO> listarPorFechas(java.time.LocalDateTime desde,
+                                          java.time.LocalDateTime hasta) {
+        return ventaRepositorio.findByFechaVentaBetween(desde, hasta)
+                .stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    // ── Anular venta (restaura stock) ────────────────────────
+    @Transactional
+    public VentaDTO anular(Integer id) {
+        Venta venta = buscarOFallar(id);
+        if (Boolean.TRUE.equals(venta.getAnulado())) {
+            throw new IllegalStateException("La venta ya está anulada: " + id);
+        }
+        // Restaurar stock de cada producto
+        for (com.ferretapp.entidades.DetalleVenta d : venta.getDetalles()) {
+            productoServicio.actualizarStock(d.getProducto().getIdProducto(), d.getCantidad());
+        }
+        venta.setAnulado(true);
+        return toDTO(ventaRepositorio.save(venta));
+    }
+
     // ── Helpers ──────────────────────────────────────────────
     public Venta buscarOFallar(Integer id) {
         return ventaRepositorio.findById(id)
@@ -121,6 +151,7 @@ public class VentaServicio {
                 .fechaVenta(v.getFechaVenta())
                 .fechaCreacion(v.getFechaCreacion())
                 .total(total)
+                .anulado(v.getAnulado())
                 .detalles(detallesDTO)
                 .build();
     }

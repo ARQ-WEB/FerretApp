@@ -72,6 +72,22 @@ public class ProveedorServicio {
         proveedorRepositorio.save(proveedor);
     }
 
+    // ── Buscar por texto ─────────────────────────────────────
+    @Transactional(readOnly = true)
+    public List<ProveedorDTO> buscar(String q) {
+        return proveedorRepositorio.buscar(q)
+                .stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    // ── Conteo de productos del proveedor ────────────────────
+    @Transactional(readOnly = true)
+    public long conteoProductos(Integer id) {
+        Proveedor proveedor = buscarOFallar(id);
+        return proveedor.getProductos().stream()
+                .filter(p -> !Boolean.TRUE.equals(p.getEliminado()))
+                .count();
+    }
+
     // ── Helpers ──────────────────────────────────────────────
     public Proveedor buscarOFallar(Integer id) {
         return proveedorRepositorio.findById(id)

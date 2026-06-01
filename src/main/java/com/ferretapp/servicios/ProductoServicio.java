@@ -47,6 +47,12 @@ public class ProductoServicio {
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<ProductoDTO> buscar(String q) {
+        return productoRepositorio.buscarPorNombreOSku(q)
+                .stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
     // ── Obtener por ID ───────────────────────────────────────
     @Transactional(readOnly = true)
     public ProductoDTO obtenerPorId(Integer id) {

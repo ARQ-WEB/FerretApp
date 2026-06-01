@@ -27,4 +27,10 @@ public interface ProductoRepositorio extends JpaRepository<Producto, Integer> {
     // Productos de un proveedor específico (4FN)
     @Query("SELECT p FROM Producto p JOIN p.proveedores pv WHERE pv.idProveedor = :idProveedor AND p.eliminado = false")
     List<Producto> findByProveedorId(Integer idProveedor);
+
+    // Búsqueda combinada por nombre o SKU (insensible a mayúsculas)
+    @Query("SELECT p FROM Producto p WHERE p.eliminado = false AND " +
+           "(LOWER(p.nombre) LIKE LOWER(CONCAT('%', :q, '%')) OR " +
+           " LOWER(p.sku)    LIKE LOWER(CONCAT('%', :q, '%')))")
+    List<Producto> buscarPorNombreOSku(String q);
 }

@@ -8,8 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,10 +72,39 @@ public class AuditoriaServicio {
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    // ── Resumen — cantidad de acciones por tipo ──────────────
+    // ── Búsqueda por texto libre ─────────────────────────────
+    @Transactional(readOnly = true)
+    public List<AuditoriaDTO> buscar(String q) {
+        return auditoriaRepositorio.buscarPorTexto(q)
+                .stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    // ── Resumen general de auditoría ─────────────────────────
+    @Transactional(readOnly = true)
+    public Map<String, Object> resumen() {
+        long totalAcciones   = auditoriaRepositorio.count();
+        long accionesHoy     = auditoriaRepositorio
+                .findByFechaHoraBetweenOrderByFechaHoraDesc(
+                        LocalDate.now().atStartOfDay(), LocalDateTime.now()).size();
+        long usuariosActivos = auditoriaRepositorio
+                .contarUsuariosActivosDesde(LocalDate.now().atStartOfDay());
+
+        Map<String, Long> porAccion = auditoriaRepositorio.findAllByOrderByFechaHoraDesc()
+                .stream()
+                .collect(Collectors.groupingBy(a -> a.getAccion(), Collectors.counting()));
+
+        return Map.of(
+                "totalAcciones",   totalAcciones,
+                "accionesHoy",     accionesHoy,
+                "usuariosActivos", usuariosActivos,
+                "accionesPorTipo", porAccion
+        );
+    }
+
+    // ── Conteo por acción ────────────────────────────────────
     @Transactional(readOnly = true)
     public long contarPorAccion(String accion) {
-        return auditoriaRepositorio.findByAccionIgnoreCase(accion).size();
+        return auditoriaRepositorio.countByAccionIgnoreCase(accion);
     }
 
     // ── Helpers ──────────────────────────────────────────────

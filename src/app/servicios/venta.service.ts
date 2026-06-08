@@ -1,14 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { VentaDTO } from '../modelos/interfaces';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class VentaService {
 
-  private readonly API_URL = 'http://localhost:8080/api';
+  private readonly API_URL = environment.apiUrl;
+  private listaCambio: Subject<VentaDTO[]> = new Subject<VentaDTO[]>();
 
   constructor(private http: HttpClient) {}
 
@@ -26,5 +28,13 @@ export class VentaService {
 
   crear(venta: VentaDTO): Observable<VentaDTO> {
     return this.http.post<VentaDTO>(`${this.API_URL}/ventas`, venta);
+  }
+
+  setList(ventas: VentaDTO[]): void {
+    this.listaCambio.next(ventas);
+  }
+
+  getListaCambio(): Observable<VentaDTO[]> {
+    return this.listaCambio.asObservable();
   }
 }

@@ -3,13 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { AuthRequest, AuthResponse, UsuarioSesion } from '../modelos/interfaces';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  private readonly API_URL = 'http://localhost:8080/api';
+  private readonly API_URL = environment.apiUrl;
   private readonly TOKEN_KEY = 'ferretapp_token';
   private readonly USER_KEY  = 'ferretapp_user';
 

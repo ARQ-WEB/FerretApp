@@ -38,6 +38,12 @@ export class Inventario implements OnInit {
 
   ngOnInit(): void {
     this.cargarDatos();
+
+    
+    this.productoService.getListaCambio().subscribe(data => {
+      this.productos = data;
+      this.productosFiltrados = data;
+    });
   }
 
   cargarDatos(): void {
@@ -96,7 +102,10 @@ export class Inventario implements OnInit {
         next: () => {
           this.guardando = false;
           this.cerrarModal();
-          this.cargarDatos();
+      
+          this.productoService.getProductos().subscribe(data => {
+            this.productoService.setList(data);
+          });
         },
         error: () => this.guardando = false
       });
@@ -105,7 +114,10 @@ export class Inventario implements OnInit {
         next: () => {
           this.guardando = false;
           this.cerrarModal();
-          this.cargarDatos();
+          
+          this.productoService.getProductos().subscribe(data => {
+            this.productoService.setList(data);
+          });
         },
         error: () => this.guardando = false
       });
@@ -115,7 +127,12 @@ export class Inventario implements OnInit {
   eliminar(producto: ProductoDTO): void {
     if (confirm(`¿Eliminar "${producto.nombre}"?`)) {
       this.productoService.eliminar(producto.idProducto!).subscribe({
-        next: () => this.cargarDatos()
+        next: () => {
+          
+          this.productoService.getProductos().subscribe(data => {
+            this.productoService.setList(data);
+          });
+        }
       });
     }
   }

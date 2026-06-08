@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ReporteDTO } from '../modelos/interfaces';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReporteService {
 
-  private readonly API_URL = 'http://localhost:8080/api';
+  private readonly API_URL = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

@@ -3,6 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ProductoDTO } from '../modelos/interfaces';
 import { ProductoVendidoDTO } from '../modelos/interfaces';
+import { environment } from '../../environments/environment';
+
+
 
 export interface DashboardDTO {
   totalProductos: number;
@@ -19,7 +22,7 @@ export interface DashboardDTO {
 })
 export class DashboardService {
 
-  private readonly API_URL = 'http://localhost:8080/api';
+  private readonly API_URL = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

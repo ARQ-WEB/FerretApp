@@ -1,14 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { ProductoDTO } from '../modelos/interfaces';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductoService {
 
-  private readonly API_URL = 'http://localhost:8080/api';
+  private readonly API_URL = environment.apiUrl;
+  private listaCambio: Subject<ProductoDTO[]> = new Subject<ProductoDTO[]>();
 
   constructor(private http: HttpClient) {}
 
@@ -30,5 +32,13 @@ export class ProductoService {
 
   eliminar(id: number): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/productos/${id}`);
+  }
+
+  setList(productos: ProductoDTO[]): void {
+    this.listaCambio.next(productos);
+  }
+
+  getListaCambio(): Observable<ProductoDTO[]> {
+    return this.listaCambio.asObservable();
   }
 }

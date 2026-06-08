@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReporteService } from '../../servicios/reporte.service';
-import { ProductoService } from '../../servicios/producto.service';
-import { ReporteDTO, ProductoDTO } from '../../modelos/interfaces';
+import { DashboardService, DashboardDTO } from '../../servicios/dashboard.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -13,18 +11,10 @@ import { ReporteDTO, ProductoDTO } from '../../modelos/interfaces';
 })
 export class Dashboard implements OnInit {
 
-  reporte: ReporteDTO | null = null;
-  stockBajo: ProductoDTO[] = [];
-  productos: ProductoDTO[] = [];
+  dashboard: DashboardDTO | null = null;
   cargando = true;
 
-  hasta = new Date().toISOString().split('T')[0];
-  desde = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-
-  constructor(
-    private reporteService: ReporteService,
-    private productoService: ProductoService
-  ) {}
+  constructor(private dashboardService: DashboardService) {}
 
   ngOnInit(): void {
     this.cargarDatos();
@@ -32,35 +22,17 @@ export class Dashboard implements OnInit {
 
   cargarDatos(): void {
     this.cargando = true;
-
-    this.reporteService.getReporteVentas(this.desde, this.hasta).subscribe({
+    this.dashboardService.getResumen().subscribe({
       next: (data) => {
-        this.reporte = data;
-        this.stockBajo = data.productosStockBajo;
-      }
-    });
-
-    this.productoService.getProductos().subscribe({
-      next: (data) => {
-        this.productos = data;
+        this.dashboard = data;
         this.cargando = false;
       },
-      error: () => {
-        this.cargando = false;
-      }
+      error: () => this.cargando = false
     });
-  }
-
-  get totalProductos(): number {
-    return this.productos.length;
-  }
-
-  get stockTotal(): number {
-    return this.productos.reduce((acc, p) => acc + p.stockActual, 0);
   }
 
   get hayStockBajo(): boolean {
-    return this.stockBajo.length > 0;
+    return (this.dashboard?.productosStockBajo ?? 0) > 0;
   }
 
   formatearMoneda(valor: number): string {

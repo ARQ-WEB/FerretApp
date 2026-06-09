@@ -109,8 +109,12 @@ export interface RolDTO {
 
 export interface UsuarioDTO {
   idUsuario?: number;
-  nombre: string;
+  idRol?: number;
+  nombreRol?: string;
+  nombreCompleto?: string;
+  nombre?: string;
   email: string;
+  contrasena?: string;
   password?: string;
   eliminado?: boolean;
   roles?: RolDTO[];

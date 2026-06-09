@@ -1,1 +1,215 @@
-<p>usuarios works!</p>
+<div class="usuarios">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Gestión de Usuarios</h1>
+      <p>Control de acceso y roles</p>
+    </div>
+    <button class="btn-nuevo" (click)="abrirModalNuevo()">
+      <span>+</span> Nuevo Usuario
+    </button>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span>Total Usuarios</span>
+        <svg fill="none" stroke="#6b7280" viewBox="0 0 24 24">
+          <path stroke-width="2" d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+          <circle cx="9" cy="7" r="4" stroke-width="2"/>
+          <path stroke-width="2" d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+        </svg>
+      </div>
+      <p class="kpi-valor">{{ totalUsuarios }}</p>
+    </div>
+
+    <div class="kpi-card azul">
+      <div class="kpi-header">
+        <span>Administradores</span>
+        <svg fill="none" stroke="#2563eb" viewBox="0 0 24 24">
+          <path stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+        </svg>
+      </div>
+      <p class="kpi-valor azul">{{ totalAdmins }}</p>
+    </div>
+
+    <div class="kpi-card verde">
+      <div class="kpi-header">
+        <span>Vendedores</span>
+        <svg fill="none" stroke="#16a34a" viewBox="0 0 24 24">
+          <path stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+        </svg>
+      </div>
+      <p class="kpi-valor verde">{{ totalVendedores }}</p>
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="tabla-container">
+    <div class="tabla-titulo">
+      <h2>Usuarios del Sistema</h2>
+      <p>Gestione los usuarios y sus niveles de acceso</p>
+    </div>
+
+    @if (cargando) {
+      <div class="cargando">
+        <div class="spinner"></div>
+        <p>Cargando usuarios...</p>
+      </div>
+    }
+
+    @if (!cargando) {
+      <table mat-table [dataSource]="dataSource" matSort class="tabla-mat">
+
+        <!-- Columna Usuario -->
+        <ng-container matColumnDef="usuario">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Usuario</th>
+          <td mat-cell *matCellDef="let usuario">
+            <div class="usuario-cell">
+              <div class="avatar" [class.avatar-admin]="esAdmin(usuario)">
+                {{ inicialNombre(usuario) }}
+              </div>
+              <div>
+                <p class="usuario-nombre">{{ usuario.nombreCompleto }}</p>
+                @if (esTuCuenta(usuario)) {
+                  <span class="tu-badge">Tú</span>
+                }
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Columna Email -->
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+          <td mat-cell *matCellDef="let usuario">{{ usuario.email }}</td>
+        </ng-container>
+
+        <!-- Columna Rol -->
+        <ng-container matColumnDef="rol">
+          <th mat-header-cell *matHeaderCellDef>Rol</th>
+          <td mat-cell *matCellDef="let usuario">
+            @if (esAdmin(usuario)) {
+              <span class="badge-admin">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+                Administrador
+              </span>
+            } @else {
+              <span class="badge-vendedor">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                Vendedor
+              </span>
+            }
+          </td>
+        </ng-container>
+
+        <!-- Columna Permisos -->
+        <ng-container matColumnDef="permisos">
+          <th mat-header-cell *matHeaderCellDef>Permisos</th>
+          <td mat-cell *matCellDef="let usuario">
+            @if (esAdmin(usuario)) {
+              <div class="permisos">
+                <span>✓ Acceso total</span>
+                <span>✓ Gestión de usuarios</span>
+                <span>✓ Reportes y auditoría</span>
+              </div>
+            } @else {
+              <div class="permisos">
+                <span>✓ Registro de ventas</span>
+                <span>✓ Consulta de inventario</span>
+              </div>
+            }
+          </td>
+        </ng-container>
+
+        <!-- Columna Acciones -->
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let usuario">
+            <div class="acciones">
+              <button class="btn-editar" (click)="abrirModalEditar(usuario)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </button>
+              <button class="btn-eliminar" (click)="eliminar(usuario)" [disabled]="esTuCuenta(usuario)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      </table>
+
+      
+    }
+  </div>
+
+  <!-- Modal -->
+  @if (mostrarModal) {
+    <div class="modal-overlay" (click)="cerrarModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+          <div>
+            <h2>{{ modoEdicion ? 'Editar Usuario' : 'Agregar Usuario' }}</h2>
+            <p>Complete la información del usuario</p>
+          </div>
+          <button class="btn-cerrar-modal" (click)="cerrarModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+
+          <div class="form-group">
+            <label>Nombre Completo *</label>
+            <input type="text" [(ngModel)]="usuarioForm.nombreCompleto" class="form-input"/>
+          </div>
+
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" [(ngModel)]="usuarioForm.email" class="form-input"/>
+          </div>
+
+          <div class="form-group">
+            <label>Contraseña *</label>
+            <input type="password" [(ngModel)]="usuarioForm.contrasena" class="form-input"/>
+          </div>
+
+          <div class="form-group">
+            <label>Rol *</label>
+            <select [(ngModel)]="rolSeleccionado" class="form-input">
+              @for (rol of roles; track rol.idRol) {
+                <option [ngValue]="rol.idRol">{{ rol.nombre }}</option>
+              }
+            </select>
+            <div class="rol-info">
+              <span><strong>Administrador:</strong> Acceso total al sistema</span>
+              <span><strong>Vendedor:</strong> Solo ventas y consulta de stock</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
+          <button class="btn-guardar" (click)="guardar()" [disabled]="guardando">
+            {{ guardando ? 'Guardando...' : (modoEdicion ? 'Actualizar' : 'Agregar') }}
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</div>

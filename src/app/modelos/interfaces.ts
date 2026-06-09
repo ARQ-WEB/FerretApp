@@ -95,7 +95,7 @@ export interface PedidoDTO {
   idProveedor: number;
   nombreProveedor?: string;
   fechaPedido?: string;
-  fechaEntregaEsperada: string;
+  fechaEntregaEsperada?: string;
   estado: 'Pendiente' | 'Recibido' | 'Cancelado';
   total?: number;
   detalles: DetallePedidoDTO[];

@@ -1,1 +1,227 @@
-<p>pedidos works!</p>
+<div class="pedidos">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Pedidos a Proveedores</h1>
+      <p>Gestión de pedidos y seguimiento</p>
+    </div>
+    <button class="btn-nuevo" (click)="abrirModal()">
+      <span>+</span> Nuevo Pedido
+    </button>
+  </div>
+
+  <!-- Cargando -->
+  @if (cargando) {
+    <div class="cargando">
+      <div class="spinner"></div>
+      <p>Cargando pedidos...</p>
+    </div>
+  }
+
+  <!-- Lista de pedidos -->
+  @if (!cargando) {
+    @if (pedidos.length === 0) {
+      <div class="sin-datos">
+        <p>No hay pedidos registrados</p>
+      </div>
+    }
+
+    @for (pedido of pedidos; track pedido.idPedido) {
+      <div class="pedido-card">
+
+        <!-- Header del pedido -->
+        <div class="pedido-header">
+          <div class="pedido-titulo">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-width="2" d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
+              <path stroke-width="2" d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+            </svg>
+            <div>
+              <h2>Pedido #{{ pedido.idPedido }}</h2>
+              <p>Proveedor: {{ nombreProveedor(pedido.idProveedor) }}</p>
+            </div>
+          </div>
+
+          <div class="pedido-acciones">
+            @if (pedido.estado === 'Pendiente') {
+              <div class="estado-btn-group">
+                <span class="badge-estado pendiente">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                    <path stroke-width="2" d="M12 6v6l4 2"/>
+                  </svg>
+                  Pendiente
+                </span>
+                <button class="btn-recibido" (click)="marcarRecibido(pedido)">
+                  Marcar como Recibido
+                </button>
+              </div>
+            }
+            @if (pedido.estado === 'Recibido') {
+              <span class="badge-estado recibido">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Recibido
+              </span>
+            }
+            @if (pedido.estado === 'Cancelado') {
+              <span class="badge-estado cancelado">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Cancelado
+              </span>
+            }
+          </div>
+        </div>
+
+        <!-- Info del pedido -->
+        <div class="pedido-info">
+          <div>
+            <p class="info-label">Fecha de Pedido</p>
+            <p class="info-valor">{{ formatearFecha(pedido.fechaPedido ?? '') }}</p>
+          </div>
+          <div>
+            <p class="info-label">Fecha Esperada</p>
+            <p class="info-valor">{{ (pedido.fechaEntregaEsperada ?? '').split('T')[0] }}</p>
+          </div>
+          <div>
+            <p class="info-label">Total</p>
+            <p class="info-valor total">{{ formatearMoneda(pedido.total ?? 0) }}</p>
+          </div>
+        </div>
+
+        <!-- Tabla de productos -->
+        @if (pedido.detalles && pedido.detalles.length > 0) {
+          <table class="tabla-detalles">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Costo Unit.</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (detalle of pedido.detalles; track detalle.idDetallePedido) {
+                <tr>
+                  <td>{{ detalle.nombreProducto }}</td>
+                  <td>{{ formatearMoneda(detalle.precioUnitario) }}</td>
+                  <td>{{ detalle.cantidad }}</td>
+                  <td>{{ formatearMoneda(detalle.subtotal ?? 0) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+
+      </div>
+    }
+  }
+
+  <!-- Modal Crear Pedido -->
+  @if (mostrarModal) {
+    <div class="modal-overlay" (click)="cerrarModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+          <div>
+            <h2>Crear Pedido a Proveedor</h2>
+            <p>Seleccione proveedor y agregue productos al pedido</p>
+          </div>
+          <button class="btn-cerrar-modal" (click)="cerrarModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+
+          <!-- Proveedor y fecha -->
+          <div class="form-row">
+            <div class="form-group">
+              <label>Proveedor *</label>
+              <select [(ngModel)]="proveedorSeleccionado" class="form-input">
+                <option [ngValue]="null">Seleccionar proveedor</option>
+                @for (proveedor of proveedores; track proveedor.idProveedor) {
+                  <option [ngValue]="proveedor.idProveedor">{{ proveedor.nombreEmpresa }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Fecha de Entrega Esperada *</label>
+              <input type="date" [(ngModel)]="fechaEntrega" class="form-input"/>
+            </div>
+          </div>
+
+          <!-- Agregar productos -->
+          <div class="agregar-productos">
+            <h3>Agregar Productos</h3>
+            <div class="form-row tres-columnas">
+              <div class="form-group">
+                <label>Producto</label>
+                <select [(ngModel)]="productoSeleccionado" class="form-input">
+                  <option [ngValue]="null">Seleccionar producto</option>
+                  @for (producto of productos; track producto.idProducto) {
+                    <option [ngValue]="producto.idProducto">{{ producto.nombre }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Cantidad</label>
+                <input type="number" [(ngModel)]="cantidadItem" min="1" class="form-input"/>
+              </div>
+              <button class="btn-agregar-item" (click)="agregarItem()">
+                <span>+</span> Agregar
+              </button>
+            </div>
+          </div>
+
+          <!-- Lista de items -->
+          @if (itemsPedido.length > 0) {
+            <div class="items-pedido">
+              <h3>Productos en el Pedido</h3>
+              <table class="tabla-items">
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th>Costo Unit.</th>
+                    <th>Cantidad</th>
+                    <th>Subtotal</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of itemsPedido; track item.idProducto; let i = $index) {
+                    <tr>
+                      <td>{{ item.nombreProducto }}</td>
+                      <td>{{ formatearMoneda(item.precioCosto) }}</td>
+                      <td>{{ item.cantidad }}</td>
+                      <td>{{ formatearMoneda(item.subtotal) }}</td>
+                      <td>
+                        <button class="btn-quitar" (click)="quitarItem(i)">Quitar</button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+              <div class="total-pedido">
+                <span>Total:</span>
+                <span class="total-valor">{{ formatearMoneda(totalPedido) }}</span>
+              </div>
+            </div>
+          }
+
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
+          <button class="btn-guardar" (click)="crearPedido()" [disabled]="guardando">
+            {{ guardando ? 'Creando...' : 'Crear Pedido' }}
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</div>

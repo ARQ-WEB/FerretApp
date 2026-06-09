@@ -25,8 +25,8 @@ export interface CategoriaDTO {
 // --- PROVEEDOR ---
 export interface ProveedorDTO {
   idProveedor?: number;
-  nombre: string;
-  contacto?: string;
+  nombreEmpresa: string;
+  nombreContacto?: string;
   email?: string;
   telefono?: string;
   direccion?: string;

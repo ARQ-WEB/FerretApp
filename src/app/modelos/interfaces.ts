@@ -127,8 +127,8 @@ export interface AuditoriaDTO {
   nombreUsuario?: string;
   accion?: string;
   entidad?: string;
-  descripcion?: string;
-  fecha?: string;
+  detalle?: string;
+  fechaHora?: string;
 }
 
 // --- REPORTE ---

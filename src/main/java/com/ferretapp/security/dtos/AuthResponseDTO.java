@@ -7,4 +7,6 @@ import java.util.Set;
 public class AuthResponseDTO {
     private String jwt;
     private Set<String> roles;
+    private Integer idUsuario;
+    private String nombreCompleto;
 }

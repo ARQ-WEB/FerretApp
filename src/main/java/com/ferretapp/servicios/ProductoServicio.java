@@ -4,10 +4,13 @@ import com.ferretapp.dtos.ProductoDTO;
 import com.ferretapp.entidades.Categoria;
 import com.ferretapp.entidades.Producto;
 import com.ferretapp.entidades.Proveedor;
+import com.ferretapp.entidades.Usuario;
 import com.ferretapp.repositorios.CategoriaRepositorio;
 import com.ferretapp.repositorios.ProductoRepositorio;
 import com.ferretapp.repositorios.ProveedorRepositorio;
+import com.ferretapp.repositorios.UsuarioRepositorio;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,8 +24,9 @@ public class ProductoServicio {
     private final ProductoRepositorio productoRepositorio;
     private final CategoriaRepositorio categoriaRepositorio;
     private final ProveedorRepositorio proveedorRepositorio;
+    private final UsuarioRepositorio usuarioRepositorio;
+    private final AuditoriaServicio auditoriaServicio;
 
-    // ── Listar ──────────────────────────────────────────────
     @Transactional(readOnly = true)
     public List<ProductoDTO> listarActivos() {
         return productoRepositorio.findByEliminadoFalse()
@@ -53,7 +57,6 @@ public class ProductoServicio {
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    // ── Obtener por ID ───────────────────────────────────────
     @Transactional(readOnly = true)
     public ProductoDTO obtenerPorId(Integer id) {
         return toDTO(buscarOFallar(id));
@@ -66,7 +69,6 @@ public class ProductoServicio {
         return toDTO(p);
     }
 
-    // ── Crear ────────────────────────────────────────────────
     @Transactional
     public ProductoDTO crear(ProductoDTO dto) {
         if (productoRepositorio.existsBySku(dto.getSku())) {
@@ -83,22 +85,30 @@ public class ProductoServicio {
                 .precioVenta(dto.getPrecioVenta())
                 .build();
 
-        // 4FN: asignar categorías
         if (dto.getIdCategorias() != null && !dto.getIdCategorias().isEmpty()) {
             Set<Categoria> categorias = new HashSet<>(categoriaRepositorio.findAllById(dto.getIdCategorias()));
             producto.setCategorias(categorias);
         }
 
-        // 4FN: asignar proveedores
         if (dto.getIdProveedores() != null && !dto.getIdProveedores().isEmpty()) {
             Set<Proveedor> proveedores = new HashSet<>(proveedorRepositorio.findAllById(dto.getIdProveedores()));
             producto.setProveedores(proveedores);
         }
 
-        return toDTO(productoRepositorio.save(producto));
+        ProductoDTO resultado = toDTO(productoRepositorio.save(producto));
+
+        try {
+            auditoriaServicio.registrar(
+                    getIdUsuarioActual(),
+                    "Producto creado",
+                    "Producto",
+                    "Producto: " + dto.getNombre() + " (SKU: " + dto.getSku() + ")"
+            );
+        } catch (Exception ignored) {}
+
+        return resultado;
     }
 
-    // ── Actualizar ───────────────────────────────────────────
     @Transactional
     public ProductoDTO actualizar(Integer id, ProductoDTO dto) {
         Producto producto = buscarOFallar(id);
@@ -118,10 +128,20 @@ public class ProductoServicio {
             producto.setProveedores(proveedores);
         }
 
-        return toDTO(productoRepositorio.save(producto));
+        ProductoDTO resultado = toDTO(productoRepositorio.save(producto));
+
+        try {
+            auditoriaServicio.registrar(
+                    getIdUsuarioActual(),
+                    "Producto actualizado",
+                    "Producto",
+                    "Producto: " + producto.getNombre() + " (SKU: " + producto.getSku() + ")"
+            );
+        } catch (Exception ignored) {}
+
+        return resultado;
     }
 
-    // ── Actualizar stock ─────────────────────────────────────
     @Transactional
     public void actualizarStock(Integer idProducto, int cantidad) {
         Producto producto = buscarOFallar(idProducto);
@@ -133,18 +153,31 @@ public class ProductoServicio {
         productoRepositorio.save(producto);
     }
 
-    // ── Eliminar lógico ──────────────────────────────────────
     @Transactional
     public void eliminar(Integer id) {
         Producto producto = buscarOFallar(id);
         producto.setEliminado(true);
         productoRepositorio.save(producto);
+
+        try {
+            auditoriaServicio.registrar(
+                    getIdUsuarioActual(),
+                    "Producto eliminado",
+                    "Producto",
+                    "Producto: " + producto.getNombre() + " (SKU: " + producto.getSku() + ")"
+            );
+        } catch (Exception ignored) {}
     }
 
-    // ── Helpers ──────────────────────────────────────────────
     public Producto buscarOFallar(Integer id) {
         return productoRepositorio.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Producto no encontrado: " + id));
+    }
+
+    private Integer getIdUsuarioActual() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return usuarioRepositorio.findByEmailIgnoreCaseAndEliminadoFalse(email)
+                .map(Usuario::getIdUsuario).orElse(1);
     }
 
     private ProductoDTO toDTO(Producto p) {

@@ -6,9 +6,12 @@ import com.ferretapp.entidades.DetallePedido;
 import com.ferretapp.entidades.Pedido;
 import com.ferretapp.entidades.Producto;
 import com.ferretapp.entidades.Proveedor;
+import com.ferretapp.entidades.Usuario;
 import com.ferretapp.repositorios.DetallePedidoRepositorio;
 import com.ferretapp.repositorios.PedidoRepositorio;
+import com.ferretapp.repositorios.UsuarioRepositorio;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,8 +29,9 @@ public class PedidoServicio {
     private final DetallePedidoRepositorio detallePedidoRepositorio;
     private final ProveedorServicio proveedorServicio;
     private final ProductoServicio productoServicio;
+    private final UsuarioRepositorio usuarioRepositorio;
+    private final AuditoriaServicio auditoriaServicio;
 
-    // ── Listar ──────────────────────────────────────────────
     @Transactional(readOnly = true)
     public List<PedidoDTO> listarTodos() {
         return pedidoRepositorio.findAll()
@@ -46,20 +50,18 @@ public class PedidoServicio {
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    // ── Obtener por ID ───────────────────────────────────────
     @Transactional(readOnly = true)
     public PedidoDTO obtenerPorId(Integer id) {
         return toDTO(buscarOFallar(id));
     }
 
-    // ── Crear (con detalles) ─────────────────────────────────
     @Transactional
     public PedidoDTO crear(PedidoDTO dto) {
         Proveedor proveedor = proveedorServicio.buscarOFallar(dto.getIdProveedor());
 
         Pedido pedido = Pedido.builder()
                 .proveedor(proveedor)
-                .fechaPedido(dto.getFechaPedido())
+                .fechaPedido(dto.getFechaPedido() != null ? dto.getFechaPedido() : java.time.LocalDateTime.now())
                 .fechaEntregaEsperada(dto.getFechaEntregaEsperada())
                 .estado(dto.getEstado() != null ? dto.getEstado() : "Pendiente")
                 .build();
@@ -67,34 +69,37 @@ public class PedidoServicio {
         if (dto.getDetalles() != null && !dto.getDetalles().isEmpty()) {
             List<DetallePedido> detalles = new ArrayList<>();
             for (DetallePedidoDTO d : dto.getDetalles()) {
-                // 5FN: validar proveedor del detalle
                 if (!proveedor.getIdProveedor().equals(d.getIdProveedor())) {
                     throw new IllegalArgumentException(
                             "El proveedor del detalle (" + d.getIdProveedor() +
                                     ") no coincide con el del pedido (" + proveedor.getIdProveedor() + ").");
                 }
                 Producto producto = productoServicio.buscarOFallar(d.getIdProducto());
-
-                // ← CAMBIO: calcular subtotal en Java
                 BigDecimal subtotal = d.getPrecioUnitario()
                         .multiply(BigDecimal.valueOf(d.getCantidad()));
-
                 detalles.add(DetallePedido.builder()
                         .pedido(pedido)
                         .producto(producto)
                         .idProveedor(d.getIdProveedor())
                         .cantidad(d.getCantidad())
                         .precioUnitario(d.getPrecioUnitario())
-                        .subtotal(subtotal) // ← CAMBIO
+                        .subtotal(subtotal)
                         .build());
             }
             pedido.setDetalles(detalles);
         }
 
-        return toDTO(pedidoRepositorio.save(pedido));
+        PedidoDTO resultado = toDTO(pedidoRepositorio.save(pedido));
+
+        try {
+            Integer idUsuario = getIdUsuarioActual();
+            auditoriaServicio.registrar(idUsuario, "Pedido creado", "Pedido",
+                    "Proveedor: " + proveedor.getNombreEmpresa() + " - Total: $" + resultado.getTotal());
+        } catch (Exception ignored) {}
+
+        return resultado;
     }
 
-    // ── Cambiar estado ───────────────────────────────────────
     @Transactional
     public PedidoDTO cambiarEstado(Integer id, String nuevoEstado) {
         List<String> estadosValidos = List.of("Pendiente", "Recibido", "Cancelado");
@@ -110,10 +115,16 @@ public class PedidoServicio {
         }
 
         pedido.setEstado(nuevoEstado);
+
+        try {
+            Integer idUsuario = getIdUsuarioActual();
+            auditoriaServicio.registrar(idUsuario, "Pedido " + nuevoEstado.toLowerCase(), "Pedido",
+                    "Pedido #" + id + " marcado como " + nuevoEstado);
+        } catch (Exception ignored) {}
+
         return toDTO(pedidoRepositorio.save(pedido));
     }
 
-    // ── Eliminar ─────────────────────────────────────────────
     @Transactional
     public void eliminar(Integer id) {
         Pedido pedido = buscarOFallar(id);
@@ -123,10 +134,15 @@ public class PedidoServicio {
         pedidoRepositorio.delete(pedido);
     }
 
-    // ── Helpers ──────────────────────────────────────────────
     private Pedido buscarOFallar(Integer id) {
         return pedidoRepositorio.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Pedido no encontrado: " + id));
+    }
+
+    private Integer getIdUsuarioActual() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return usuarioRepositorio.findByEmailIgnoreCaseAndEliminadoFalse(email)
+                .map(Usuario::getIdUsuario).orElse(1);
     }
 
     private PedidoDTO toDTO(Pedido p) {

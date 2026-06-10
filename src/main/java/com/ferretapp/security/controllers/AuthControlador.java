@@ -5,6 +5,7 @@ import com.ferretapp.security.dtos.AuthRequestDTO;
 import com.ferretapp.security.dtos.AuthResponseDTO;
 import com.ferretapp.security.services.CustomUserDetailsService;
 import com.ferretapp.security.util.JwtUtil;
+import com.ferretapp.servicios.AuditoriaServicio;
 import com.ferretapp.servicios.UsuarioServicio;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,18 +36,20 @@ public class AuthControlador {
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService userDetailsService;
     private final UsuarioServicio usuarioServicio;
+    private final AuditoriaServicio auditoriaServicio;
 
     public AuthControlador(AuthenticationManager authenticationManager,
                            JwtUtil jwtUtil,
                            CustomUserDetailsService userDetailsService,
-                           UsuarioServicio usuarioServicio) {
+                           UsuarioServicio usuarioServicio,
+                           AuditoriaServicio auditoriaServicio) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil               = jwtUtil;
         this.userDetailsService    = userDetailsService;
         this.usuarioServicio       = usuarioServicio;
+        this.auditoriaServicio     = auditoriaServicio;
     }
 
-    // POST /api/authenticate
     @PostMapping("/authenticate")
     public ResponseEntity<?> login(@RequestBody AuthRequestDTO authRequest) {
         try {
@@ -76,25 +79,50 @@ public class AuthControlador {
         response.setJwt(token);
         response.setRoles(roles);
 
+        try {
+            UsuarioDTO usuario = usuarioServicio.obtenerPorEmail(authRequest.getUsername());
+            response.setIdUsuario(usuario.getIdUsuario());
+            response.setNombreCompleto(usuario.getNombreCompleto());
+        } catch (Exception ignored) {}
+
+        // Registrar auditoría de login
+        try {
+            UsuarioDTO usuario = usuarioServicio.obtenerPorEmail(authRequest.getUsername());
+            auditoriaServicio.registrar(
+                    usuario.getIdUsuario(),
+                    "Inicio de sesión",
+                    "Autenticación",
+                    "Usuario " + usuario.getNombreCompleto() + " inició sesión"
+            );
+        } catch (Exception ignored) {}
+
         log.info("Login exitoso para usuario: {} con roles: {}", authRequest.getUsername(), roles);
         return ResponseEntity.ok().headers(responseHeaders).body(response);
     }
 
-    // POST /api/authenticate/logout
-    // JWT es stateless: el cierre de sesión se maneja eliminando el token en el cliente.
-    // Este endpoint sirve como confirmación formal y para registrar el evento.
     @PostMapping("/authenticate/logout")
     public ResponseEntity<Map<String, String>> logout() {
         String email = SecurityContextHolder.getContext().getAuthentication() != null
                 ? SecurityContextHolder.getContext().getAuthentication().getName()
                 : "desconocido";
+
+        // Registrar auditoría de logout
+        try {
+            UsuarioDTO usuario = usuarioServicio.obtenerPorEmail(email);
+            auditoriaServicio.registrar(
+                    usuario.getIdUsuario(),
+                    "Cierre de sesión",
+                    "Autenticación",
+                    "Usuario " + usuario.getNombreCompleto() + " cerró sesión"
+            );
+        } catch (Exception ignored) {}
+
         log.info("Logout solicitado por: {}", email);
         return ResponseEntity.ok(Map.of(
                 "mensaje", "Sesión cerrada correctamente. Elimine el token del cliente."
         ));
     }
 
-    // GET /api/authenticate/me
     @GetMapping("/authenticate/me")
     public ResponseEntity<UsuarioDTO> me() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();

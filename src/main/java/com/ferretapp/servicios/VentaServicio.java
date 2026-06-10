@@ -21,34 +21,29 @@ public class VentaServicio {
     private final ProductoServicio productoServicio;
     private final ClienteServicio clienteServicio;
     private final UsuarioServicio usuarioServicio;
+    private final AuditoriaServicio auditoriaServicio;
 
-    // ── Listar todos ─────────────────────────────────────────
     @Transactional(readOnly = true)
     public List<VentaDTO> listarTodas() {
         return ventaRepositorio.findAll()
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    // ── Últimas 5 ventas ─────────────────────────────────────
     @Transactional(readOnly = true)
     public List<VentaDTO> listarRecientes() {
         return ventaRepositorio.findTop5ByOrderByFechaVentaDesc()
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    // ── Obtener por ID ───────────────────────────────────────
     @Transactional(readOnly = true)
     public VentaDTO obtenerPorId(Integer id) {
         return toDTO(buscarOFallar(id));
     }
 
-    // ── Crear venta ──────────────────────────────────────────
     @Transactional
     public VentaDTO crear(VentaDTO dto) {
-        // Validar usuario
         Usuario usuario = usuarioServicio.buscarOFallar(dto.getIdUsuario());
 
-        // Cliente es opcional
         Cliente cliente = null;
         if (dto.getIdCliente() != null) {
             cliente = clienteServicio.buscarOFallar(dto.getIdCliente());
@@ -59,12 +54,10 @@ public class VentaServicio {
                 .cliente(cliente)
                 .build();
 
-        // Construir detalles y descontar stock
         List<DetalleVenta> detalles = new ArrayList<>();
         for (DetalleVentaDTO d : dto.getDetalles()) {
             Producto producto = productoServicio.buscarOFallar(d.getIdProducto());
 
-            // Validar stock disponible
             if (producto.getStockActual() < d.getCantidad()) {
                 throw new IllegalStateException(
                         "Stock insuficiente para: " + producto.getNombre() +
@@ -72,10 +65,8 @@ public class VentaServicio {
                                 ", solicitado: " + d.getCantidad());
             }
 
-            // Descontar stock
             productoServicio.actualizarStock(producto.getIdProducto(), -d.getCantidad());
 
-            // ← CAMBIO: calcular subtotal en Java
             BigDecimal subtotal = producto.getPrecioVenta()
                     .multiply(BigDecimal.valueOf(d.getCantidad()));
 
@@ -84,22 +75,30 @@ public class VentaServicio {
                     .producto(producto)
                     .cantidad(d.getCantidad())
                     .precioUnitario(producto.getPrecioVenta())
-                    .subtotal(subtotal)  // ← CAMBIO
+                    .subtotal(subtotal)
                     .build());
         }
 
         venta.setDetalles(detalles);
-        return toDTO(ventaRepositorio.save(venta));
+        VentaDTO resultado = toDTO(ventaRepositorio.save(venta));
+
+        // Registrar auditoría
+        auditoriaServicio.registrar(
+                usuario.getIdUsuario(),
+                "Venta registrada",
+                "Venta",
+                "Total: S/" + resultado.getTotal() + " - " + detalles.size() + " items"
+        );
+
+        return resultado;
     }
 
-    // ── Ventas por vendedor ──────────────────────────────────
     @Transactional(readOnly = true)
     public List<VentaDTO> listarPorVendedor(Integer idUsuario) {
         return ventaRepositorio.findByUsuario_IdUsuario(idUsuario)
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    // ── Ventas por rango de fechas ───────────────────────────
     @Transactional(readOnly = true)
     public List<VentaDTO> listarPorFechas(java.time.LocalDateTime desde,
                                           java.time.LocalDateTime hasta) {
@@ -107,14 +106,12 @@ public class VentaServicio {
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    // ── Anular venta (restaura stock) ────────────────────────
     @Transactional
     public VentaDTO anular(Integer id) {
         Venta venta = buscarOFallar(id);
         if (Boolean.TRUE.equals(venta.getAnulado())) {
             throw new IllegalStateException("La venta ya está anulada: " + id);
         }
-        // Restaurar stock de cada producto
         for (com.ferretapp.entidades.DetalleVenta d : venta.getDetalles()) {
             productoServicio.actualizarStock(d.getProducto().getIdProducto(), d.getCantidad());
         }
@@ -122,7 +119,6 @@ public class VentaServicio {
         return toDTO(ventaRepositorio.save(venta));
     }
 
-    // ── Helpers ──────────────────────────────────────────────
     public Venta buscarOFallar(Integer id) {
         return ventaRepositorio.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Venta no encontrada: " + id));

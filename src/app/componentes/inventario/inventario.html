@@ -71,7 +71,7 @@
                 <p class="producto-nombre">{{ producto.nombre }}</p>
                 <p class="producto-desc">{{ producto.descripcion }}</p>
               </td>
-              <td>{{ producto.idCategorias?.length ? categorias[0]?.nombre : '—' }}</td>
+              <td>{{ getNombreCategoria(producto) }}</td>
               <td>
                 <div class="stock-cell">
                   @if (stockBajo(producto)) {
@@ -139,7 +139,12 @@
           <div class="form-row">
             <div class="form-group">
               <label>Categoría *</label>
-              <input type="text" [(ngModel)]="productoForm.descripcion" placeholder="Ej: Herramientas" class="form-input"/>
+              <select [(ngModel)]="categoriaSeleccionada" class="form-input">
+                <option [ngValue]="null">Seleccionar categoría</option>
+                @for (categoria of categorias; track categoria.idCategoria) {
+                  <option [ngValue]="categoria.idCategoria">{{ categoria.nombre }}</option>
+                }
+              </select>
             </div>
             <div class="form-group">
               <label>Proveedor *</label>
@@ -149,6 +154,13 @@
                   <option [ngValue]="proveedor.idProveedor">{{ proveedor.nombreEmpresa }}</option>
                 }
               </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Descripción</label>
+              <input type="text" [(ngModel)]="productoForm.descripcion" class="form-input"/>
             </div>
           </div>
 

@@ -81,14 +81,14 @@ export class Inventario implements OnInit {
   }
 
   abrirModalEditar(producto: ProductoDTO): void {
-    this.modoEdicion = true;
-    this.productoForm = {
-      ...producto,
-      idCategorias: producto.idCategorias ?? [],
-      idProveedores: producto.idProveedores ?? []
-    };
-    this.mostrarModal = true;
-  }
+  this.modoEdicion = true;
+  this.productoForm = {
+    ...producto,
+    idCategorias: producto.idCategorias ? Array.from(producto.idCategorias) : [],
+    idProveedores: producto.idProveedores ? Array.from(producto.idProveedores) : []
+  };
+  this.mostrarModal = true;
+}
 
   cerrarModal(): void {
     this.mostrarModal = false;
@@ -139,6 +139,12 @@ export class Inventario implements OnInit {
 
   stockBajo(producto: ProductoDTO): boolean {
     return producto.stockActual <= producto.stockMinimo;
+  }
+
+  getNombreCategoria(producto: ProductoDTO): string {
+  if (!producto.idCategorias || producto.idCategorias.length === 0) return '—';
+  const idCat = producto.idCategorias[0];
+  return this.categorias.find(c => c.idCategoria === idCat)?.nombre ?? '—';
   }
 
   get categoriaSeleccionada(): number | null {

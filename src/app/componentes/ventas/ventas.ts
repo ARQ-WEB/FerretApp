@@ -96,26 +96,25 @@ export class Ventas implements OnInit {
   }
 
   completarVenta(): void {
-    if (this.carrito.length === 0) return;
+  if (this.carrito.length === 0) return;
 
-    const usuario = this.authService.getUsuarioActual();
-    this.procesando = true;
+  this.procesando = true;
 
-    const venta: VentaDTO = {
-      idUsuario: 1,
-      detalles: this.carrito.map(i => ({
-        idProducto: i.idProducto,
-        cantidad: i.cantidad
-      }))
-    };
+  const venta: VentaDTO = {
+    idUsuario: this.authService.getIdUsuarioActual(),
+    detalles: this.carrito.map(i => ({
+      idProducto: i.idProducto,
+      cantidad: i.cantidad
+    }))
+  };
 
-    this.ventaService.crear(venta).subscribe({
-      next: () => {
-        this.carrito = [];
-        this.procesando = false;
-        this.cargarDatos();
-      },
-      error: () => this.procesando = false
+  this.ventaService.crear(venta).subscribe({
+    next: () => {
+      this.carrito = [];
+      this.procesando = false;
+      this.cargarDatos();
+    },
+    error: () => this.procesando = false
     });
   }
 

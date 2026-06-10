@@ -16,7 +16,6 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  // ── Login ──────────────────────────────────────────────
   login(email: string, password: string): Observable<AuthResponse> {
     const body: AuthRequest = { username: email, password };
 
@@ -25,7 +24,8 @@ export class AuthService {
         const sesion: UsuarioSesion = {
           username: email,
           roles: Array.from(response.roles),
-          token: response.jwt
+          token: response.jwt,
+          idUsuario: response.idUsuario
         };
         localStorage.setItem(this.TOKEN_KEY, response.jwt);
         localStorage.setItem(this.USER_KEY, JSON.stringify(sesion));
@@ -33,30 +33,29 @@ export class AuthService {
     );
   }
 
-  // ── Logout ─────────────────────────────────────────────
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     this.router.navigate(['/login']);
   }
 
-  // ── Token ──────────────────────────────────────────────
   getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  // ── Usuario actual ─────────────────────────────────────
   getUsuarioActual(): UsuarioSesion | null {
     const data = localStorage.getItem(this.USER_KEY);
     return data ? JSON.parse(data) : null;
   }
 
-  // ── Verificar autenticación ────────────────────────────
+  getIdUsuarioActual(): number {
+    return this.getUsuarioActual()?.idUsuario ?? 1;
+  }
+
   estaAutenticado(): boolean {
     return !!this.getToken();
   }
 
-  // ── Verificar roles ────────────────────────────────────
   esAdministrador(): boolean {
     const usuario = this.getUsuarioActual();
     return usuario?.roles?.includes('ROLE_ADMINISTRADOR') ?? false;

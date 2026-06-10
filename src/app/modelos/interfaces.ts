@@ -7,12 +7,14 @@ export interface AuthRequest {
 export interface AuthResponse {
   jwt: string;
   roles: string[];
+  idUsuario?: number;
 }
 
 export interface UsuarioSesion {
   username: string;
   roles: string[];
   token: string;
+  idUsuario?: number;
 }
 
 // --- CATEGORÍA ---

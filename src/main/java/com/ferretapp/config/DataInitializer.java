@@ -21,7 +21,7 @@ public class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        seedRol("ADMIN");
+        seedRol("ADMINISTRADOR");
         seedRol("VENDEDOR");
     }
 

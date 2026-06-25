@@ -2,8 +2,11 @@ package com.ferretapp.servicios;
 
 import com.ferretapp.dtos.ProveedorDTO;
 import com.ferretapp.entidades.Proveedor;
+import com.ferretapp.entidades.Usuario;
 import com.ferretapp.repositorios.ProveedorRepositorio;
+import com.ferretapp.repositorios.UsuarioRepositorio;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,8 +19,9 @@ import java.util.stream.Collectors;
 public class ProveedorServicio {
 
     private final ProveedorRepositorio proveedorRepositorio;
+    private final UsuarioRepositorio usuarioRepositorio;
+    private final AuditoriaServicio auditoriaServicio;
 
-    // ── Listar ──────────────────────────────────────────────
     @Transactional(readOnly = true)
     public List<ProveedorDTO> listarActivos() {
         return proveedorRepositorio.findByEliminadoFalse()
@@ -30,13 +34,11 @@ public class ProveedorServicio {
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    // ── Obtener por ID ───────────────────────────────────────
     @Transactional(readOnly = true)
     public ProveedorDTO obtenerPorId(Integer id) {
         return toDTO(buscarOFallar(id));
     }
 
-    // ── Crear ────────────────────────────────────────────────
     @Transactional
     public ProveedorDTO crear(ProveedorDTO dto) {
         if (proveedorRepositorio.existsByEmailIgnoreCase(dto.getEmail())) {
@@ -49,10 +51,15 @@ public class ProveedorServicio {
                 .telefono(dto.getTelefono())
                 .direccion(dto.getDireccion())
                 .build();
-        return toDTO(proveedorRepositorio.save(proveedor));
+        ProveedorDTO resultado = toDTO(proveedorRepositorio.save(proveedor));
+        try {
+            Integer idUsuario = getIdUsuarioActual();
+            auditoriaServicio.registrar(idUsuario, "Proveedor creado", "Proveedor",
+                    "Proveedor: " + dto.getNombreEmpresa());
+        } catch (Exception ignored) {}
+        return resultado;
     }
 
-    // ── Actualizar ───────────────────────────────────────────
     @Transactional
     public ProveedorDTO actualizar(Integer id, ProveedorDTO dto) {
         Proveedor proveedor = buscarOFallar(id);
@@ -61,25 +68,33 @@ public class ProveedorServicio {
         proveedor.setEmail(dto.getEmail());
         proveedor.setTelefono(dto.getTelefono());
         proveedor.setDireccion(dto.getDireccion());
-        return toDTO(proveedorRepositorio.save(proveedor));
+        ProveedorDTO resultado = toDTO(proveedorRepositorio.save(proveedor));
+        try {
+            Integer idUsuario = getIdUsuarioActual();
+            auditoriaServicio.registrar(idUsuario, "Proveedor actualizado", "Proveedor",
+                    "Proveedor: " + proveedor.getNombreEmpresa());
+        } catch (Exception ignored) {}
+        return resultado;
     }
 
-    // ── Eliminar lógico ──────────────────────────────────────
     @Transactional
     public void eliminar(Integer id) {
         Proveedor proveedor = buscarOFallar(id);
         proveedor.setEliminado(true);
         proveedorRepositorio.save(proveedor);
+        try {
+            Integer idUsuario = getIdUsuarioActual();
+            auditoriaServicio.registrar(idUsuario, "Proveedor eliminado", "Proveedor",
+                    "Proveedor: " + proveedor.getNombreEmpresa());
+        } catch (Exception ignored) {}
     }
 
-    // ── Buscar por texto ─────────────────────────────────────
     @Transactional(readOnly = true)
     public List<ProveedorDTO> buscar(String q) {
         return proveedorRepositorio.buscar(q)
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    // ── Conteo de productos del proveedor ────────────────────
     @Transactional(readOnly = true)
     public long conteoProductos(Integer id) {
         Proveedor proveedor = buscarOFallar(id);
@@ -88,10 +103,15 @@ public class ProveedorServicio {
                 .count();
     }
 
-    // ── Helpers ──────────────────────────────────────────────
     public Proveedor buscarOFallar(Integer id) {
         return proveedorRepositorio.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Proveedor no encontrado: " + id));
+    }
+
+    private Integer getIdUsuarioActual() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return usuarioRepositorio.findByEmailIgnoreCaseAndEliminadoFalse(email)
+                .map(Usuario::getIdUsuario).orElse(1);
     }
 
     private ProveedorDTO toDTO(Proveedor p) {

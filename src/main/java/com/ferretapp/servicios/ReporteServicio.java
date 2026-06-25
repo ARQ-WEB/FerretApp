@@ -25,23 +25,16 @@ public class ReporteServicio {
     private final DetalleVentaRepositorio detalleVentaRepositorio;
     private final ProductoServicio productoServicio;
 
-    // ── Reporte de ventas por rango de fechas ────────────────
     @Transactional(readOnly = true)
     public ReporteDTO reporteVentas(LocalDateTime desde, LocalDateTime hasta) {
         List<Venta> ventas = ventaRepositorio.findByFechaVentaBetween(desde, hasta);
 
-        // KPIs
         BigDecimal ingresosTotales = BigDecimal.ZERO;
         Integer unidadesVendidas = 0;
 
-        // Ventas por día
         Map<String, BigDecimal> ventasPorDia = new TreeMap<>();
-
-        // Ventas por categoría
         Map<String, BigDecimal> ventasPorCategoria = new HashMap<>();
-
-        // Productos más vendidos
-        Map<String, int[]> productosMap = new HashMap<>();
+        Map<String, Object[]> productosMap = new HashMap<>();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -52,45 +45,35 @@ public class ReporteServicio {
                 BigDecimal subtotal = detalle.getPrecioUnitario()
                         .multiply(BigDecimal.valueOf(detalle.getCantidad()));
 
-                // Ingresos totales
                 ingresosTotales = ingresosTotales.add(subtotal);
-
-                // Unidades vendidas
                 unidadesVendidas += detalle.getCantidad();
-
-                // Ventas por día
                 ventasPorDia.merge(dia, subtotal, BigDecimal::add);
 
-                // Ventas por categoría
                 detalle.getProducto().getCategorias().forEach(cat -> {
                     ventasPorCategoria.merge(cat.getNombre(), subtotal, BigDecimal::add);
                 });
 
-                // Productos más vendidos
                 String nombreProducto = detalle.getProducto().getNombre();
-                productosMap.computeIfAbsent(nombreProducto, k -> new int[]{0});
-                productosMap.get(nombreProducto)[0] += detalle.getCantidad();
+                productosMap.computeIfAbsent(nombreProducto, k -> new Object[]{0, BigDecimal.ZERO});
+                productosMap.get(nombreProducto)[0] = (int) productosMap.get(nombreProducto)[0] + detalle.getCantidad();
+                productosMap.get(nombreProducto)[1] = ((BigDecimal) productosMap.get(nombreProducto)[1]).add(subtotal);
             }
         }
 
-        // Venta promedio
         BigDecimal ventaPromedio = ventas.isEmpty() ? BigDecimal.ZERO :
-                ingresosTotales.divide(
-                        BigDecimal.valueOf(ventas.size()), 2, RoundingMode.HALF_UP);
+                ingresosTotales.divide(BigDecimal.valueOf(ventas.size()), 2, RoundingMode.HALF_UP);
 
-        // Top productos más vendidos
         List<ReporteDTO.ProductoVendidoDTO> productosMasVendidos = productosMap
                 .entrySet().stream()
-                .sorted((a, b) -> b.getValue()[0] - a.getValue()[0])
+                .sorted((a, b) -> (int) b.getValue()[0] - (int) a.getValue()[0])
                 .limit(10)
                 .map(e -> ReporteDTO.ProductoVendidoDTO.builder()
                         .nombreProducto(e.getKey())
-                        .unidadesVendidas(e.getValue()[0])
-                        .ingresoGenerado(BigDecimal.ZERO)
+                        .unidadesVendidas((int) e.getValue()[0])
+                        .ingresoGenerado((BigDecimal) e.getValue()[1])
                         .build())
                 .collect(Collectors.toList());
 
-        // Stock bajo
         List<ProductoDTO> stockBajo = productoServicio.listarConStockBajo();
 
         return ReporteDTO.builder()
@@ -105,28 +88,23 @@ public class ReporteServicio {
                 .build();
     }
 
-    // ── Reporte de stock bajo ────────────────────────────────
     @Transactional(readOnly = true)
     public List<ProductoDTO> reporteStockBajo() {
         return productoServicio.listarConStockBajo();
     }
 
-    // ── Ventas por día (para gráfico separado) ───────────────
     @Transactional(readOnly = true)
     public Map<String, BigDecimal> ventasPorDia(LocalDateTime desde, LocalDateTime hasta) {
         return reporteVentas(desde, hasta).getVentasPorDia();
     }
 
-    // ── Ventas por categoría (para gráfico separado) ─────────
     @Transactional(readOnly = true)
     public Map<String, BigDecimal> ventasPorCategoria(LocalDateTime desde, LocalDateTime hasta) {
         return reporteVentas(desde, hasta).getVentasPorCategoria();
     }
 
-    // ── Productos más vendidos (ranking separado) ────────────
     @Transactional(readOnly = true)
-    public List<ReporteDTO.ProductoVendidoDTO> productosMasVendidos(LocalDateTime desde,
-                                                                    LocalDateTime hasta) {
+    public List<ReporteDTO.ProductoVendidoDTO> productosMasVendidos(LocalDateTime desde, LocalDateTime hasta) {
         return reporteVentas(desde, hasta).getProductosMasVendidos();
     }
 }

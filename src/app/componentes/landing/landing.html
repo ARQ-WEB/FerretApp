@@ -1,0 +1,561 @@
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar" [class.scrolled]="scrolled()">
+  <div class="nav-container">
+    <div class="nav-logo">
+      <svg class="nav-logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="8" fill="#2563eb"/>
+        <path d="M8 10h16M8 16h10M8 22h13" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="23" cy="22" r="3" fill="white"/>
+      </svg>
+      <span class="nav-logo-text">FERRETAPP</span>
+    </div>
+
+    <div class="nav-links" [class.open]="menuAbierto()">
+      <a (click)="scrollTo('caracteristicas')" class="nav-link">Características</a>
+      <a (click)="scrollTo('beneficios')" class="nav-link">Beneficios</a>
+      <a (click)="scrollTo('testimonios')" class="nav-link">Testimonios</a>
+      <a (click)="scrollTo('contacto')" class="nav-link">Contacto</a>
+      <div class="nav-actions-mobile">
+        <button class="btn-login" (click)="irAlLogin()">Iniciar sesión</button>
+        <button class="btn-cta" (click)="scrollTo('contacto')">Comenzar ahora</button>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn-login" (click)="irAlLogin()">Iniciar sesión</button>
+      <button class="btn-cta" (click)="scrollTo('contacto')">Comenzar ahora</button>
+    </div>
+
+    <button class="nav-hamburger" (click)="toggleMenu()" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-container">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2563eb"/><path d="M8 12l2.5 2.5L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Solución #1 para ferreterías en Perú
+      </div>
+      <h1 class="hero-title">Gestiona tu Ferretería<br><span class="hero-accent">con Inteligencia</span></h1>
+      <p class="hero-subtitle">Controla inventario, ventas y stock en tiempo real. Toma decisiones basadas en datos y haz crecer tu negocio.</p>
+
+      <ul class="hero-checks">
+        <li>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#16a34a"/><path d="M8 12l2.5 2.5L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Implementación en 24 horas
+        </li>
+        <li>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#16a34a"/><path d="M8 12l2.5 2.5L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Sin contratos de permanencia
+        </li>
+        <li>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#16a34a"/><path d="M8 12l2.5 2.5L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Soporte dedicado 24/7
+        </li>
+      </ul>
+
+      <div class="hero-btns">
+        <button class="btn-hero-primary" (click)="scrollTo('contacto')">Solicitar información</button>
+        <button class="btn-hero-secondary" (click)="scrollTo('demo')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polygon points="5,3 19,12 5,21" fill="currentColor"/></svg>
+          Ver demo en vivo
+        </button>
+      </div>
+    </div>
+
+    <!-- Dashboard mockup -->
+    <div class="hero-mockup">
+      <div class="mockup-window">
+        <div class="mockup-topbar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="mockup-url">ferretapp.com/dashboard</span>
+        </div>
+        <div class="mockup-body">
+          <div class="mockup-sidebar">
+            <div class="m-logo">FERRETAPP</div>
+            <div class="m-nav-item active">Dashboard</div>
+            <div class="m-nav-item">Inventario</div>
+            <div class="m-nav-item">Ventas</div>
+            <div class="m-nav-item">Reportes</div>
+          </div>
+          <div class="mockup-content">
+            <p class="m-title">Dashboard</p>
+            <div class="m-kpis">
+              <div class="m-kpi">
+                <span class="m-kpi-label">Productos</span>
+                <span class="m-kpi-value">127</span>
+              </div>
+              <div class="m-kpi green">
+                <span class="m-kpi-label">Ventas Hoy</span>
+                <span class="m-kpi-value">S/712</span>
+              </div>
+              <div class="m-kpi orange">
+                <span class="m-kpi-label">Stock Bajo</span>
+                <span class="m-kpi-value">8</span>
+              </div>
+            </div>
+            <div class="m-chart-area">
+              <p class="m-chart-label">Ventas últimos 7 días</p>
+              <div class="m-bars">
+                <div class="m-bar" style="height:35%"></div>
+                <div class="m-bar" style="height:55%"></div>
+                <div class="m-bar" style="height:42%"></div>
+                <div class="m-bar" style="height:70%"></div>
+                <div class="m-bar" style="height:60%"></div>
+                <div class="m-bar" style="height:85%"></div>
+                <div class="m-bar active" style="height:75%"></div>
+              </div>
+            </div>
+            <div class="m-alert">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#f97316"/></svg>
+              Stock mínimo: Tornillos M8
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONFÍAN EN FERRETAPP ===== -->
+<section class="trust-section">
+  <p class="trust-label">CONFÍAN EN FERRETAPP</p>
+  <div class="trust-logos">
+    <span class="trust-logo">SODIMAC</span>
+    <span class="trust-logo">PROMART</span>
+    <span class="trust-logo">MAESTRO</span>
+    <span class="trust-logo">ACE</span>
+    <span class="trust-logo">MAKRO</span>
+  </div>
+  <div class="trust-stats">
+    <div class="trust-stat">
+      <span class="trust-stat-value">+500</span>
+      <span class="trust-stat-label">Ferreterías</span>
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-stat">
+      <span class="trust-stat-value blue">98%</span>
+      <span class="trust-stat-label">Satisfacción</span>
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-stat">
+      <span class="trust-stat-value">24/7</span>
+      <span class="trust-stat-label">Soporte</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CARACTERÍSTICAS ===== -->
+<section id="caracteristicas" class="features-section">
+  <div class="section-container">
+    <p class="section-tag">CARACTERÍSTICAS</p>
+    <h2 class="section-title">Características Principales</h2>
+    <p class="section-subtitle">Todo lo que necesitas para gestionar tu ferretería</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon blue">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 10h8M8 14h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Inventario en Tiempo Real</h3>
+        <p>Actualiza automáticamente el stock con cada venta y recepción de mercancía.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon green">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Ventas Rápidas</h3>
+        <p>Registra ventas en cuestión de segundos. Optimiza tu tiempo de atención al cliente.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon orange">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/><path d="M12 8v4l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Alertas de Stock</h3>
+        <p>Recibe notificaciones configurables cuando el stock cae bajo el mínimo establecido.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon purple">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Reportes y Estadísticas</h3>
+        <p>Visualiza el rendimiento de tu negocio con dashboards intuitivos y reportes automáticos.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon teal">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Gestión de Proveedores</h3>
+        <p>Controla pedidos, plazos y relaciones con tus proveedores desde un solo lugar.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon indigo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="9" height="9" rx="1" stroke="currentColor" stroke-width="2"/><rect x="13" y="3" width="9" height="9" rx="1" stroke="currentColor" stroke-width="2"/><rect x="2" y="13" width="9" height="9" rx="1" stroke="currentColor" stroke-width="2"/><rect x="13" y="13" width="9" height="9" rx="1" stroke="currentColor" stroke-width="2"/></svg>
+        </div>
+        <h3>Multi-sucursal</h3>
+        <p>Gestiona múltiples locales y sucursales con un solo sistema centralizado.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BENEFICIOS / FEATURE DETAIL ROWS ===== -->
+<section id="beneficios" class="benefits-section">
+  <div class="section-container">
+
+    <!-- Row 1: Image left, text right -->
+    <div class="benefit-row">
+      <div class="benefit-visual">
+        <div class="benefit-mockup blue-bg">
+          <div class="bm-header">Ventas del día</div>
+          <div class="bm-metric">
+            <span class="bm-big">S/ 2,840</span>
+            <span class="bm-badge green">+25%</span>
+          </div>
+          <div class="bm-list">
+            <div class="bm-item"><span>Tornillos 2"</span><span>×48</span></div>
+            <div class="bm-item"><span>Pintura blanca</span><span>×12</span></div>
+            <div class="bm-item"><span>Cable flexible</span><span>×30m</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="benefit-text">
+        <p class="benefit-tag">EFICIENCIA</p>
+        <h2>Ahorra Tiempo y Dinero</h2>
+        <p>FerretApp automatiza las tareas repetitivas y reduce errores humanos en un 25%. Dedica más tiempo a hacer crecer tu negocio.</p>
+        <ul class="benefit-list">
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2563eb"/><path d="M8 12l2.5 2.5L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Automatización de procesos clave
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2563eb"/><path d="M8 12l2.5 2.5L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Reducción de errores manuales
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2563eb"/><path d="M8 12l2.5 2.5L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Reportes automáticos diarios
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Row 2: Text left, image right -->
+    <div class="benefit-row reverse">
+      <div class="benefit-text">
+        <p class="benefit-tag">ANALÍTICA</p>
+        <h2>Toma Decisiones Informadas</h2>
+        <p>Visualiza el rendimiento de tu ferretería con dashboards intuitivos y métricas en tiempo real. Anticipa demanda y optimiza tu stock.</p>
+        <ul class="benefit-list">
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2563eb"/><path d="M8 12l2.5 2.5L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Inteligencia de negocios
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2563eb"/><path d="M8 12l2.5 2.5L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Análisis de tendencias de ventas
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2563eb"/><path d="M8 12l2.5 2.5L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Exportación de reportes en PDF/Excel
+          </li>
+        </ul>
+      </div>
+      <div class="benefit-visual">
+        <div class="benefit-mockup gray-bg">
+          <div class="bm-header">Reporte semanal</div>
+          <div class="bm-chart-bars">
+            <div class="bm-bar-wrap"><div class="bm-bar-fill" style="height:50%"></div><span>L</span></div>
+            <div class="bm-bar-wrap"><div class="bm-bar-fill" style="height:70%"></div><span>M</span></div>
+            <div class="bm-bar-wrap"><div class="bm-bar-fill" style="height:45%"></div><span>X</span></div>
+            <div class="bm-bar-wrap"><div class="bm-bar-fill" style="height:85%"></div><span>J</span></div>
+            <div class="bm-bar-wrap"><div class="bm-bar-fill" style="height:65%"></div><span>V</span></div>
+            <div class="bm-bar-wrap"><div class="bm-bar-fill" style="height:90%"></div><span>S</span></div>
+            <div class="bm-bar-wrap"><div class="bm-bar-fill" style="height:40%"></div><span>D</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 3: Image left, text right -->
+    <div class="benefit-row">
+      <div class="benefit-visual">
+        <div class="benefit-mockup orange-bg">
+          <div class="bm-header">Alertas de Stock</div>
+          <div class="bm-alerts">
+            <div class="bm-alert-item red">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2"/></svg>
+              Tornillos 2" — Stock: 3 und.
+            </div>
+            <div class="bm-alert-item orange">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2"/></svg>
+              Pintura blanca — Stock: 5 und.
+            </div>
+            <div class="bm-alert-item orange">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2"/></svg>
+              Cable flexible — Stock: 8m
+            </div>
+          </div>
+          <button class="bm-btn">Crear pedido automático</button>
+        </div>
+      </div>
+      <div class="benefit-text">
+        <p class="benefit-tag">STOCK</p>
+        <h2>Nunca te Quedes sin Stock</h2>
+        <p>FerretApp monitorea el inventario continuamente y crea alertas personalizadas por producto. Reabastece a tiempo y mantén tus ventas.</p>
+        <ul class="benefit-list">
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2563eb"/><path d="M8 12l2.5 2.5L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Alertas configurables por producto
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2563eb"/><path d="M8 12l2.5 2.5L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Historial completo de movimientos
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2563eb"/><path d="M8 12l2.5 2.5L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Órdenes de compra integradas
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== VIDEO DEMO ===== -->
+<section id="demo" class="demo-section">
+  <div class="section-container">
+    <p class="section-tag">DEMO</p>
+    <h2 class="section-title">Ve FerretApp en Acción</h2>
+    <p class="section-subtitle">Explora la interfaz mediante módulos y prestaciones</p>
+
+    <div class="demo-player">
+      <div class="demo-screen">
+        <svg class="play-btn" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="30" cy="30" r="30" fill="rgba(255,255,255,0.15)"/>
+          <circle cx="30" cy="30" r="22" fill="rgba(255,255,255,0.25)"/>
+          <polygon points="24,20 44,30 24,40" fill="white"/>
+        </svg>
+        <p class="demo-duration">Ver Video Demo — 2 min</p>
+      </div>
+    </div>
+
+    <div class="demo-tabs">
+      @for (tab of tabs; track tab.id) {
+        <button class="demo-tab" [class.active]="tabActivo() === tab.id" (click)="setTab(tab.id)">
+          {{ tab.label }}
+        </button>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ===== TESTIMONIOS ===== -->
+<section id="testimonios" class="testimonios-section">
+  <div class="section-container">
+    <p class="section-tag">TESTIMONIOS</p>
+    <h2 class="section-title">Lo que Dicen Nuestros Clientes</h2>
+
+    <div class="testimonios-grid">
+      <div class="testimonio-card">
+        <div class="stars">★★★★★</div>
+        <p class="testimonio-text">"FerretApp transformó completamente nuestra ferretería. El control de inventario que antes nos tomaba horas, ahora lo tenemos en minutos."</p>
+        <div class="testimonio-autor">
+          <div class="autor-avatar" style="background:#bfdbfe; color:#1d4ed8">JP</div>
+          <div>
+            <p class="autor-nombre">Juan Pérez</p>
+            <p class="autor-cargo">Propietario — Ferretería El Maestro</p>
+          </div>
+        </div>
+      </div>
+      <div class="testimonio-card">
+        <div class="stars">★★★★★</div>
+        <p class="testimonio-text">"Redujimos los quiebres de stock en un 95% y las ventas mensuales aumentaron notablemente. El soporte es excelente y siempre disponible."</p>
+        <div class="testimonio-autor">
+          <div class="autor-avatar" style="background:#bbf7d0; color:#15803d">AG</div>
+          <div>
+            <p class="autor-nombre">Alex García</p>
+            <p class="autor-cargo">Gerente — Distribuidora Ferretera</p>
+          </div>
+        </div>
+      </div>
+      <div class="testimonio-card">
+        <div class="stars">★★★★★</div>
+        <p class="testimonio-text">"Lo implementamos en nuestra sucursal y en dos semanas ya teníamos todo controlado. Súper intuitivo y el equipo nos acompañó en cada paso."</p>
+        <div class="testimonio-autor">
+          <div class="autor-avatar" style="background:#fde68a; color:#92400e">CL</div>
+          <div>
+            <p class="autor-nombre">Carlos López</p>
+            <p class="autor-cargo">Administrador — Ferreterías Múltiples</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="faq-section">
+  <div class="section-container faq-container">
+    <p class="section-tag">FAQ</p>
+    <h2 class="section-title">Preguntas Frecuentes</h2>
+
+    <div class="faq-list">
+      @for (item of faqs; track $index) {
+        <div class="faq-item" [class.open]="faqAbierto() === $index">
+          <button class="faq-question" (click)="toggleFaq($index)">
+            {{ item.pregunta }}
+            <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          @if (faqAbierto() === $index) {
+            <p class="faq-answer">{{ item.respuesta }}</p>
+          }
+        </div>
+      }
+    </div>
+    <p class="faq-footer">¿Más preguntas? <a (click)="scrollTo('contacto')">Contáctanos</a></p>
+  </div>
+</section>
+
+<!-- ===== CONTACTO ===== -->
+<section id="contacto" class="contacto-section">
+  <div class="section-container">
+    <p class="section-tag">CONTACTO</p>
+    <h2 class="section-title">¿Interesado en FerretApp?</h2>
+    <p class="section-subtitle">Completa el formulario y nos pondremos en contacto contigo</p>
+
+    <div class="contacto-card">
+      <form (ngSubmit)="enviarFormulario()" class="contacto-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre completo *</label>
+            <input type="text" [(ngModel)]="formulario.nombre" name="nombre" placeholder="Juan Pérez" required class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" [(ngModel)]="formulario.email" name="email" placeholder="juan&#64;ferreteria.com" required class="form-input">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="tel" [(ngModel)]="formulario.telefono" name="telefono" placeholder="+51 999 999 999" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Nombre de tu ferretería</label>
+            <input type="text" [(ngModel)]="formulario.ferreteria" name="ferreteria" placeholder="Ferretería El Sol" class="form-input">
+          </div>
+        </div>
+        <div class="form-group full">
+          <label>¿Cómo podemos ayudarte?</label>
+          <textarea [(ngModel)]="formulario.mensaje" name="mensaje" rows="3" placeholder="Cuéntanos sobre tu ferretería y tus necesidades actuales de gestión..." class="form-input"></textarea>
+        </div>
+        <p class="form-disclaimer">Al enviar, aceptas nuestros <a href="#">términos de servicio</a> y <a href="#">política de privacidad</a>.</p>
+        <button type="submit" class="btn-submit">Enviar Solicitud</button>
+      </form>
+    </div>
+
+    <div class="contacto-info">
+      <div class="info-item">
+        <div class="info-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="#2563eb" stroke-width="2"/><polyline points="22,6 12,13 2,6" stroke="#2563eb" stroke-width="2"/></svg>
+        </div>
+        <div>
+          <p class="info-label">Email</p>
+          <p class="info-value">info&#64;ferretapp.com</p>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.7A2 2 0 012 1h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" stroke="#2563eb" stroke-width="2"/></svg>
+        </div>
+        <div>
+          <p class="info-label">Teléfono</p>
+          <p class="info-value">+51 900 873 938</p>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#2563eb" stroke-width="2"/><polyline points="12,6 12,12 16,14" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <p class="info-label">Horario</p>
+          <p class="info-value">Lun – Vie, 9:00 – 18:00</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA FINAL ===== -->
+<section class="cta-section">
+  <div class="cta-container">
+    <h2>¿Listo para Modernizar tu Ferretería?</h2>
+    <p>Solicita una demostración personalizada y descubre cómo FerretApp puede ayudarte.</p>
+    <button class="btn-cta-white" (click)="scrollTo('contacto')">Solicitar Demostración</button>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-col brand">
+      <div class="footer-logo">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#2563eb"/><path d="M8 10h16M8 16h10M8 22h13" stroke="white" stroke-width="2.5" stroke-linecap="round"/><circle cx="23" cy="22" r="3" fill="white"/></svg>
+        <span>FERRETAPP</span>
+      </div>
+      <p class="footer-desc">Sistema de gestión integral para ferreterías. Inventario, ventas y reportes en un solo lugar.</p>
+      <div class="footer-social">
+        <a class="social-icon" href="#" aria-label="Facebook">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="social-icon" href="#" aria-label="Instagram">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="2"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" stroke="currentColor" stroke-width="2"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </a>
+        <a class="social-icon" href="#" aria-label="LinkedIn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" stroke="currentColor" stroke-width="2"/><circle cx="4" cy="4" r="2" stroke="currentColor" stroke-width="2"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Producto</h4>
+      <ul>
+        <li><a (click)="scrollTo('caracteristicas')">Características</a></li>
+        <li><a (click)="scrollTo('demo')">Demo</a></li>
+        <li><a (click)="scrollTo('testimonios')">Testimonios</a></li>
+        <li><a href="#">Precios</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Empresa</h4>
+      <ul>
+        <li><a href="#">Nosotros</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Casos de éxito</a></li>
+        <li><a (click)="scrollTo('contacto')">Contacto</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#">Términos de uso</a></li>
+        <li><a href="#">Privacidad</a></li>
+        <li><a href="#">Cookies</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2026 FerretApp. Todos los derechos reservados.</p>
+  </div>
+</footer>
